@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
   <script>
+    // Configure Tailwind theme tokens for dark obsidian/crimson/violet aesthetic
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -47,7 +48,7 @@
     };
   </script>
   <style>
-    /* Custom subtle scrollbar & animations */
+    /* Custom scrollbar and interactive states */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -75,7 +76,6 @@
     .timer-active-ring {
       animation: pulse-border 2s infinite;
     }
-    /* Safe-area support for notched iOS/Android devices */
     .safe-top {
       padding-top: max(1rem, env(safe-area-inset-top));
     }
@@ -96,7 +96,6 @@
         <!-- Brand / Title -->
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-crimson-600 via-crimson-900 to-cursed-600 flex items-center justify-center border border-crimson-500/40 shadow-lg shrink-0">
-            <!-- Inverted Spear / Blade Icon -->
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -110,6 +109,9 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span id="pwa-status-text">Offline Ready</span>
               </span>
+              <span id="session-clock-badge" class="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                Session: <span id="session-elapsed-text">00:00</span>
+              </span>
             </div>
             <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white mt-0.5">
               SORCERER KILLER <span class="text-slate-400 font-medium text-sm sm:text-base">/ Toji Workout App</span>
@@ -117,7 +119,7 @@
           </div>
         </div>
 
-        <!-- App Controls: Install, Wake Lock, Data Settings & Reset Week -->
+        <!-- App Controls -->
         <div class="flex flex-wrap items-center justify-between md:justify-end gap-2">
           <div class="text-left md:text-right mr-1">
             <div class="text-[11px] text-slate-400 font-medium">Weekly Progress</div>
@@ -128,6 +130,19 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-1.5">
+            <!-- Finish Workout Button -->
+            <button
+              id="finish-workout-btn"
+              type="button"
+              class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Save completed workout to History Calendar"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Finish Workout</span>
+            </button>
+
             <!-- Install App Button -->
             <button
               id="install-app-btn"
@@ -202,7 +217,6 @@
     <!-- Built-in Rest Countdown Timer Card -->
     <section id="timer-card" class="rounded-2xl bg-obsidian border border-slate-800/90 p-4 sm:p-5 shadow-xl transition-all">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <!-- Timer Display -->
         <div class="flex items-center justify-between sm:justify-start gap-4">
           <div class="flex items-center gap-3">
             <div id="timer-icon-box" class="w-11 h-11 rounded-xl bg-slatecard border border-slate-700/80 flex items-center justify-center text-blade-400">
@@ -221,7 +235,6 @@
             </div>
           </div>
 
-          <!-- Play / Pause / Reset Controls -->
           <div class="flex items-center gap-2 sm:ml-4">
             <button
               id="timer-toggle-btn"
@@ -252,7 +265,7 @@
       </div>
     </section>
 
-    <!-- Collapsible Equipment & Leg Station Guide -->
+    <!-- Collapsible Equipment, Superset & Mobility Rules Guide -->
     <section class="rounded-2xl bg-obsidian border border-slate-800/90 overflow-hidden shadow-lg">
       <button
         id="equipment-guide-toggle"
@@ -265,7 +278,7 @@
             Equipment Guide
           </span>
           <span class="text-xs sm:text-sm font-semibold text-slate-200">
-            How Your Multi-Gym &amp; Leg Station Fit Into This Plan
+            Multi-Gym, Leg Station, Superset &amp; Mobility Rules
           </span>
         </div>
         <svg id="equipment-guide-chevron" class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -280,44 +293,42 @@
             Leg Developer Attachment (2-in-1 Station)
           </div>
           <p class="text-slate-400 leading-relaxed">
-            <strong class="text-slate-200">Sitting Upright (Kicking Shins Forward/Up):</strong> That’s <span class="text-blade-400 font-semibold">Seated Leg Extensions</span> — isolates the front of your thighs (quads).
+            <strong class="text-slate-200">Sitting Upright (Kicking Shins Forward/Up):</strong> <span class="text-blade-400 font-semibold">Seated Leg Extensions</span> — isolates quads.
           </p>
           <p class="text-slate-400 leading-relaxed">
-            <strong class="text-slate-200">Lying Face Down (Curling Heels to Glutes):</strong> That’s <span class="text-blade-400 font-semibold">Lying Leg Curls</span> — isolates the back of your thighs (hamstrings).
+            <strong class="text-slate-200">Lying Face Down (Curling Heels to Glutes):</strong> <span class="text-blade-400 font-semibold">Lying Leg Curls</span> — isolates hamstrings.
           </p>
         </div>
 
         <div class="p-3 rounded-xl bg-slatecard/60 border border-slate-800 space-y-1.5">
           <div class="font-bold text-white flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-crimson-500"></span>
-            Upper Multi-Gym &amp; Dumbbells
+            Superset &amp; Mobility Rules
           </div>
           <p class="text-slate-400 leading-relaxed">
-            <strong class="text-slate-200">High Pulley + Press Arm:</strong> Wide-grip &amp; underhand <span class="text-crimson-400 font-semibold">Lat Pulldowns</span> build Toji’s V-taper width, while the <span class="text-crimson-400 font-semibold">Seated Shoulder &amp; Chest Press</span> stations safely overload pressing strength without needing a barbell rack.
+            <strong class="text-slate-200">No Double-Machine Leg Supersets:</strong> Lower-body supersets only pair <span class="text-emerald-400 font-semibold">one machine with a dumbbell or bodyweight movement</span> so you never waste time switching pads/pins mid-superset.
           </p>
           <p class="text-slate-400 leading-relaxed">
-            <strong class="text-slate-200">Dumbbells &amp; Floor Space:</strong> Used for unilateral rows, lateral raises, goblet squats, RDLs, arm supersets, and explosive conditioning.
+            <strong class="text-slate-200">Daily Mobility Warm-Ups + Day 3 Recovery:</strong> Each training day includes a 5-minute mobility prep, and Day 3 provides a structured 20–25 minute recovery &amp; mobility routine.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Day Selector Navigation Tabs -->
-    <nav aria-label="Workout Days" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-      <!-- Populated dynamically via JS -->
+    <!-- Day Selector Navigation Tabs + Calendar History Tab -->
+    <nav aria-label="Workout Days and History" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
       <div id="day-tabs-container" class="contents"></div>
     </nav>
 
-    <!-- Active Day Workout Container -->
-    <section id="workout-panel" class="space-y-4">
-      <!-- Day Header Banner & Exercises rendered via JS -->
-    </section>
+    <!-- Active Day Workout or Calendar History Container -->
+    <section id="workout-panel" class="space-y-4"></section>
 
   </main>
 
-  <!-- Custom Non-Blocking Toast / Confirmation Modal -->
+  <!-- Toast Container -->
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- Reset Week Confirmation Modal -->
   <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="bg-obsidian border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center gap-3">
@@ -328,7 +339,7 @@
         </div>
         <div>
           <h3 class="text-base font-bold text-white">Reset Weekly Progress?</h3>
-          <p class="text-xs text-slate-400">This clears all checked sets for the week. Your logged weights & notes will be kept.</p>
+          <p class="text-xs text-slate-400">Clears checked sets and skips for a new week. Saved History Calendar sessions stay intact.</p>
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
@@ -342,7 +353,7 @@
     </div>
   </div>
 
-  <!-- Install App Instructions Modal (iOS Safari / Desktop / Local File Guide) -->
+  <!-- Install App Instructions Modal -->
   <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
     <div class="bg-obsidian border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-start justify-between gap-3">
@@ -357,33 +368,29 @@
             <p class="text-xs text-slate-400">Run full-screen from your Home Screen like a native app</p>
           </div>
         </div>
-        <button id="close-install-modal-btn" type="button" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          ✕
-        </button>
+        <button id="close-install-modal-btn" type="button" class="text-slate-400 hover:text-white p-1 cursor-pointer">✕</button>
       </div>
 
       <div class="space-y-3 text-xs text-slate-300">
-        <!-- iOS Safari Steps -->
         <div class="p-3.5 rounded-xl bg-slatecard/80 border border-slate-800 space-y-2">
           <div class="font-bold text-white flex items-center gap-2">
             <span class="px-2 py-0.5 rounded bg-blade-500/15 text-blade-400 font-mono text-[10px]">iOS / iPadOS</span>
             <span>Safari Instructions</span>
           </div>
           <ol class="list-decimal list-inside space-y-1.5 text-slate-300 leading-relaxed">
-            <li>If viewing a downloaded file, open it in <strong>Safari</strong>.</li>
-            <li>Tap the <strong>Share</strong> button (<span class="font-mono text-blade-400">⍐</span>) at the bottom of the screen.</li>
-            <li>Scroll down and tap <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
+            <li>Open your hosted app URL in <strong>Safari</strong>.</li>
+            <li>Tap the <strong>Share</strong> button (<span class="font-mono text-blade-400">⍐</span>).</li>
+            <li>Tap <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
           </ol>
         </div>
 
-        <!-- Android Chrome Steps -->
         <div class="p-3.5 rounded-xl bg-slatecard/80 border border-slate-800 space-y-2">
           <div class="font-bold text-white flex items-center gap-2">
             <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[10px]">Android / Desktop</span>
             <span>Chrome &amp; Edge</span>
           </div>
           <p class="text-slate-300 leading-relaxed">
-            When hosted over HTTPS, tapping <strong>Install App</strong> triggers the instant install prompt. If opened from local storage, tap the browser menu (<strong>⋮</strong>) and choose <strong>Add to Home screen</strong> or <strong>Create shortcut</strong>.
+            When served over HTTPS or localhost, tapping <strong>Install App</strong> triggers the install prompt—or open the browser menu (<strong>⋮</strong>) and choose <strong>Add to Home screen</strong>.
           </p>
         </div>
       </div>
@@ -402,11 +409,9 @@
       <div class="flex items-start justify-between gap-3">
         <div>
           <h3 class="text-base font-extrabold text-white">App Data &amp; Backup</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Export or import your logged weights, notes, and progress as JSON.</p>
+          <p class="text-xs text-slate-400 mt-0.5">Export or import your logged sets, history calendar, and progress as JSON.</p>
         </div>
-        <button id="close-settings-modal-btn" type="button" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          ✕
-        </button>
+        <button id="close-settings-modal-btn" type="button" class="text-slate-400 hover:text-white p-1 cursor-pointer">✕</button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -421,7 +426,7 @@
             </svg>
             Export Backup (.json)
           </div>
-          <p class="text-[11px] text-slate-400">Save your workout logs to transfer between phone &amp; PC.</p>
+          <p class="text-[11px] text-slate-400">Download a JSON backup of sets and workout history.</p>
         </button>
 
         <label
@@ -434,30 +439,24 @@
             </svg>
             Import Backup (.json)
           </div>
-          <p class="text-[11px] text-slate-400">Restore previously exported weights and checkmarks.</p>
+          <p class="text-[11px] text-slate-400">Restore previously exported workout JSON data.</p>
           <input id="import-json-input" type="file" accept=".json,application/json" class="hidden" />
         </label>
       </div>
 
       <div class="p-3 rounded-xl bg-void border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-        <span>Storage Key: <code class="text-slate-300 font-mono">toji_workout_hybrid_v3</code></span>
+        <span>Storage Key: <code class="text-slate-300 font-mono">toji_workout_hevy_v4</code></span>
         <span id="app-mode-indicator" class="font-mono text-emerald-400">Browser Mode</span>
       </div>
     </div>
   </div>
 
   <script>
-    /**
-     * PWA Initialization:
-     * 1. Generates crisp PNG Apple Touch Icon via HTML5 Canvas
-     * 2. Injects dynamic Web App Manifest via Blob URL
-     * 3. Registers inline Service Worker via Blob URL for offline caching
-     */
     let deferredInstallPrompt = null;
     let wakeLockSentinel = null;
 
+    // Initialize dynamic PNG icon, web app manifest, and offline service worker
     function initPWAFeatures() {
-      // 1. Generate 512x512 PNG App Icon on Canvas (required for crisp iOS Home Screen icon & Manifest)
       let pngIconDataUrl = '';
       try {
         const canvas = document.createElement('canvas');
@@ -465,11 +464,9 @@
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
 
-        // Dark void background
         ctx.fillStyle = '#09090b';
         ctx.fillRect(0, 0, 512, 512);
 
-        // Radial crimson/violet aura
         const grad = ctx.createLinearGradient(0, 0, 512, 512);
         grad.addColorStop(0, '#dc2626');
         grad.addColorStop(0.55, '#450a0a');
@@ -479,13 +476,11 @@
         ctx.roundRect(36, 36, 440, 440, 96);
         ctx.fill();
 
-        // Inner dark shield
         ctx.fillStyle = '#0d0f17';
         ctx.beginPath();
         ctx.roundRect(56, 56, 400, 400, 80);
         ctx.fill();
 
-        // Lightning / Inverted Spear emblem
         ctx.strokeStyle = '#ef4444';
         ctx.lineWidth = 24;
         ctx.lineCap = 'round';
@@ -511,10 +506,9 @@
         console.warn('Canvas icon generation skipped:', e);
       }
 
-      // 2. Dynamic Web App Manifest via Blob URL
       try {
         const svgIcon = encodeURIComponent(
-          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#09090b"/><path d="M276 110L156 276h100l-20 126 120-166H256z" fill="#ef4444"/></svg>`
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#09090b"/><path d="M276 110L156 276h100l-20 126 120-166H256z" fill="#ef4444"/></svg>'
         );
         const icons = [
           {
@@ -555,17 +549,12 @@
         console.warn('Manifest injection skipped:', e);
       }
 
-      // 3. Inline Service Worker Registration (works on HTTPS / localhost)
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
         try {
           const swCode = `
-            const CACHE_NAME = 'sorcerer-killer-pwa-v1';
-            self.addEventListener('install', (event) => {
-              self.skipWaiting();
-            });
-            self.addEventListener('activate', (event) => {
-              event.waitUntil(self.clients.claim());
-            });
+            const CACHE_NAME = 'sorcerer-killer-pwa-v2';
+            self.addEventListener('install', () => self.skipWaiting());
+            self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
             self.addEventListener('fetch', (event) => {
               if (event.request.method !== 'GET') return;
               event.respondWith(
@@ -584,15 +573,10 @@
           `;
           const swBlob = new Blob([swCode], { type: 'application/javascript' });
           const swUrl = URL.createObjectURL(swBlob);
-          navigator.serviceWorker.register(swUrl).catch(() => {
-            // Blob SW may be restricted on some origins; localStorage offline mode still works
-          });
-        } catch (e) {
-          // Graceful fallback
-        }
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        } catch (e) {}
       }
 
-      // 4. Detect Standalone Installed Mode vs Browser Mode
       const isStandalone =
         window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true;
@@ -607,13 +591,10 @@
         if (installBtn) installBtn.classList.add('hidden');
       }
 
-      // Capture Android/Desktop Chrome beforeinstallprompt
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
-        if (installBtn) {
-          installBtn.classList.remove('hidden');
-        }
+        if (installBtn) installBtn.classList.remove('hidden');
       });
 
       window.addEventListener('appinstalled', () => {
@@ -624,9 +605,7 @@
       });
     }
 
-    /**
-     * Screen Wake Lock API (keeps screen on during workout & rest timer)
-     */
+    // Keep display awake during workouts when supported
     async function toggleWakeLock() {
       const btn = document.getElementById('wake-lock-btn');
       const label = document.getElementById('wake-lock-label');
@@ -667,14 +646,12 @@
       }
     }
 
-    /**
-     * Export & Import JSON Workout Data
-     */
+    // Export and import workout JSON backups
     function exportWorkoutJSON() {
       try {
         const payload = {
           app: 'Sorcerer Killer Workout PWA',
-          version: 'toji_workout_hybrid_v3',
+          version: 'toji_workout_hevy_v4',
           exportedAt: new Date().toISOString(),
           data: appState
         };
@@ -705,15 +682,19 @@
           }
           appState = {
             activeDayId: importedState.activeDayId || 'day1',
-            completedSets: importedState.completedSets || {},
-            logs: importedState.logs || {}
+            sessionStartTime: importedState.sessionStartTime || Date.now(),
+            exercises: importedState.exercises || {},
+            previousByExercise: importedState.previousByExercise || {},
+            history: Array.isArray(importedState.history) ? importedState.history : [],
+            selectedCalendarDate: importedState.selectedCalendarDate || getTodayDateString()
           };
+          normalizeExerciseStates();
           saveState();
           renderApp();
           const settingsModal = document.getElementById('settings-modal');
           settingsModal.classList.add('hidden');
           settingsModal.classList.remove('flex');
-          showToast('Workout backup restored successfully!', 'success');
+          showToast('Workout backup & history restored!', 'success');
         } catch (err) {
           showToast('Invalid backup JSON file.', 'info');
         }
@@ -721,26 +702,45 @@
       reader.readAsText(file);
     }
 
-    /**
-     * Workout Data Definition
-     * Hybrid 5-Day schedule (4 Training Days + 1 Active Recovery Day)
-     * Blends Machine Overload, Dumbbell Hypertrophy, and Bodyweight Calisthenics
-     */
+    function getTodayDateString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // 5-day plan with daily mobility warm-ups, structured Day 3 recovery, and single-machine lower supersets
     const WORKOUT_PLAN = [
       {
         id: 'day1',
         shortLabel: 'Day 1',
         tag: 'V-Taper Priority',
         title: 'Upper Width & Thickness',
-        subtitle: 'Back, Shoulders & Core — Machine and dumbbell overload paired with gymnastic core compression.',
+        subtitle: '5-min shoulder/thoracic prep, machine & dumbbell width/press work, and core compression.',
         accent: 'crimson',
+        mobilityWarmup: [
+          {
+            name: 'Thoracic Open-Books + Scapular Wall Slides',
+            prescription: '2 rounds × 8 open-books/side + 10 wall slides',
+            cue: 'Open chest smoothly without forcing lumbar arch; slide forearms up the wall with ribs down.'
+          },
+          {
+            name: 'Band/Dowel Shoulder Pass-Throughs & Dead Hang Prep',
+            prescription: '2 rounds × 10 reps (3–5 min total warmup)',
+            cue: 'Keep elbows straight and shoulders away from ears before loading pulldowns and overhead presses.'
+          }
+        ],
         exercises: [
           {
             id: 'd1_e1',
             name: 'Wide-Grip Lat Pulldowns',
             modality: 'Machine',
+            supersetGroup: null,
             sets: 4,
-            reps: '8–10 reps',
+            defaultLbs: '',
+            defaultReps: '8',
+            targetRepsLabel: '8–10 reps',
             restLabel: '120s',
             restSeconds: 120,
             tip: 'Pull bar to upper chest, drive elbows down toward your hips, and control the stretch back up.'
@@ -749,8 +749,11 @@
             id: 'd1_e2',
             name: 'Seated Machine Overhead Press',
             modality: 'Machine',
+            supersetGroup: null,
             sets: 4,
-            reps: '8–10 reps',
+            defaultLbs: '',
+            defaultReps: '8',
+            targetRepsLabel: '8–10 reps',
             restLabel: '120s',
             restSeconds: 120,
             tip: 'Keep back flat against pad, brace abs tight, and press straight upward without locking out aggressively.'
@@ -759,8 +762,11 @@
             id: 'd1_e3',
             name: 'One-Arm Dumbbell Row',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 3,
-            reps: '8–10 reps / side',
+            defaultLbs: '',
+            defaultReps: '10',
+            targetRepsLabel: '8–10 reps / side',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Brace free hand on bench or knee and pull dumbbell toward your hip pocket to maximize lat width.'
@@ -769,8 +775,11 @@
             id: 'd1_e4',
             name: 'Dumbbell Lateral Raises',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 4,
-            reps: '12–15 reps',
+            defaultLbs: '',
+            defaultReps: '12',
+            targetRepsLabel: '12–15 reps',
             restLabel: '60s',
             restSeconds: 60,
             tip: 'Lead with your elbows with a slight forward torso lean; pause briefly at shoulder height.'
@@ -779,8 +788,11 @@
             id: 'd1_e5',
             name: 'Hollow Body Hold + Lying Leg Raises Superset',
             modality: 'Calisthenics',
+            supersetGroup: 'Upper Core Superset (Calisthenics)',
             sets: 3,
-            reps: '30s hold + 12 raises',
+            defaultLbs: '0',
+            defaultReps: '12',
+            targetRepsLabel: '30s hold + 12 raises',
             restLabel: '60s',
             restSeconds: 60,
             tip: 'Glue lower back into the floor for the 30s hollow hold, then go straight into 12 controlled leg raises.'
@@ -792,15 +804,30 @@
         shortLabel: 'Day 2',
         tag: 'Explosiveness',
         title: 'Lower Body & Explosiveness',
-        subtitle: 'Plyometrics, Dumbbell Squats/RDLs, Unilateral Calisthenics & Leg Developer Superset.',
+        subtitle: 'Hip & ankle mobility warmup, explosive jumps, goblet squats, RDLs, split squats & single-machine leg pairings.',
         accent: 'blade',
+        mobilityWarmup: [
+          {
+            name: '90/90 Hip Switches + Ankle Dorsiflexion Rocks',
+            prescription: '2 rounds × 8 hip switches + 10 ankle rocks/side',
+            cue: 'Unlock hip rotation and drive knee forward over toes with heel planted before squatting or jumping.'
+          },
+          {
+            name: 'Glute Bridge Marches & World’s Greatest Stretch (Lite)',
+            prescription: '1–2 rounds × 5/side (~5 min total warmup)',
+            cue: 'Prime glutes and hip flexors without fatiguing explosive power.'
+          }
+        ],
         exercises: [
           {
             id: 'd2_e1',
             name: 'Explosive Squat Jumps or Broad Jumps',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 4,
-            reps: '5 reps',
+            defaultLbs: '0',
+            defaultReps: '5',
+            targetRepsLabel: '5 reps',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Explode with maximum intent on every rep, land softly with bent knees, and reset completely between jumps.'
@@ -809,8 +836,11 @@
             id: 'd2_e2',
             name: 'Dumbbell Goblet Squats',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 4,
-            reps: '8–10 reps',
+            defaultLbs: '',
+            defaultReps: '8',
+            targetRepsLabel: '8–10 reps',
             restLabel: '120s',
             restSeconds: 120,
             tip: 'Hold a heavy dumbbell tight to your chest, keep torso upright, and squat to full depth.'
@@ -819,8 +849,11 @@
             id: 'd2_e3',
             name: 'Dumbbell Romanian Deadlifts (RDLs)',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 3,
-            reps: '10–12 reps',
+            defaultLbs: '',
+            defaultReps: '10',
+            targetRepsLabel: '10–12 reps',
             restLabel: '120s',
             restSeconds: 120,
             tip: 'Keep dumbbells close to thighs and push hips straight back until you feel a deep hamstring stretch.'
@@ -829,71 +862,142 @@
             id: 'd2_e4',
             name: 'Bulgarian Split Squats (Bodyweight or Light DB)',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 3,
-            reps: '10 reps / leg',
+            defaultLbs: '0',
+            defaultReps: '10',
+            targetRepsLabel: '10 reps / leg',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Elevate rear foot on a bench/couch; drop straight down to build single-leg athleticism and hip stability.'
           },
           {
             id: 'd2_e5',
-            name: 'Seated Leg Extensions + Lying Leg Curls Superset',
+            name: 'Seated Leg Extensions (1 Machine)',
             modality: 'Machine',
+            supersetGroup: 'Lower Superset A: 1 Machine + Bodyweight',
             sets: 3,
-            reps: '12–15 reps each',
-            restLabel: '90s',
-            restSeconds: 90,
-            tip: 'Sit upright & kick shins forward for quads (Extensions), then flip face-down & curl heels to glutes (Curls).'
+            defaultLbs: '',
+            defaultReps: '12',
+            targetRepsLabel: '12–15 reps',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Sit upright and kick shins up for quad isolation—paired with Bodyweight Calf Raises (no machine swap needed).'
           },
           {
             id: 'd2_e6',
-            name: 'Single-Leg Bodyweight Calf Raises',
+            name: 'Bodyweight Calf Raises (Single or Double Leg)',
             modality: 'Calisthenics',
-            sets: 4,
-            reps: '15 reps / leg',
-            restLabel: '60s',
-            restSeconds: 60,
-            tip: 'Use fingertips lightly on a wall/frame for balance and pause 1–2 seconds at both the stretch and peak.'
+            supersetGroup: 'Lower Superset A: 1 Machine + Bodyweight',
+            sets: 3,
+            defaultLbs: '0',
+            defaultReps: '15',
+            targetRepsLabel: '12–15 reps',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Performed right after Seated Leg Extensions using a wall or step—no leg-station pin change required.'
+          },
+          {
+            id: 'd2_e7',
+            name: 'Lying Leg Curls (1 Machine)',
+            modality: 'Machine',
+            supersetGroup: 'Lower Superset B: 1 Machine + Dumbbell',
+            sets: 3,
+            defaultLbs: '',
+            defaultReps: '12',
+            targetRepsLabel: '12–15 reps',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Lie face down and curl heels toward glutes with controlled tempo—paired with Dumbbell Glute Bridges.'
+          },
+          {
+            id: 'd2_e8',
+            name: 'Dumbbell Glute Bridges / Hip Thrusts',
+            modality: 'Dumbbell',
+            supersetGroup: 'Lower Superset B: 1 Machine + Dumbbell',
+            sets: 3,
+            defaultLbs: '',
+            defaultReps: '15',
+            targetRepsLabel: '12–15 reps',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Rest a dumbbell across hips on the floor or bench and squeeze glutes at the top—keeps leg station set to Lying Curls.'
           }
         ]
       },
       {
         id: 'day3',
         shortLabel: 'Day 3',
-        tag: 'Recovery',
-        title: 'Rest / Active Recovery',
-        subtitle: 'Mobility flow, brisk walking, and light core decompression.',
+        tag: 'Active Recovery',
+        title: 'Rest / Active Recovery & Mobility',
+        subtitle: 'Structured 20–25 minute recovery protocol: low-intensity cardio, hip/thoracic mobility, and decompression.',
         accent: 'cursed',
+        mobilityWarmup: [],
         exercises: [
           {
             id: 'd3_e1',
-            name: 'Full-Body Mobility Flow (Thoracic, Hips & Shoulders)',
+            name: 'Low-Intensity Cardio (Brisk Walk or Easy Bike)',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 1,
-            reps: '10–15 min',
+            defaultLbs: '0',
+            defaultReps: '12',
+            targetRepsLabel: '10–15 min',
             restLabel: '60s',
             restSeconds: 60,
-            tip: 'Focus on deep squat holds, thoracic rotations, scapular push-ups, and doorway pec stretches.'
+            tip: 'Keep effort easy and conversational (Zone 2) to promote blood flow and clear soreness without adding fatigue.'
           },
           {
             id: 'd3_e2',
-            name: 'Brisk Walk / Low-Intensity Cardio',
+            name: 'World’s Greatest Stretch',
             modality: 'Calisthenics',
-            sets: 1,
-            reps: '20–30 min',
+            supersetGroup: null,
+            sets: 2,
+            defaultLbs: '0',
+            defaultReps: '5',
+            targetRepsLabel: '5 slow reps / side',
             restLabel: '60s',
             restSeconds: 60,
-            tip: 'Keep pace conversational (Zone 2) to promote blood flow and speed up recovery.'
+            tip: 'Step into a deep lunge, drop inside elbow toward instep, then rotate chest and reach top arm toward the ceiling.'
           },
           {
             id: 'd3_e3',
-            name: 'Light Core Decompression & Dead Bugs',
+            name: '90/90 Hip Switches',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 2,
-            reps: '45–60 sec',
+            defaultLbs: '0',
+            defaultReps: '8',
+            targetRepsLabel: '8 transitions / side',
             restLabel: '60s',
             restSeconds: 60,
-            tip: 'Move slowly with controlled breathing; keep lower back flat against the floor.'
+            tip: 'Sit with knees at 90 degrees and rotate hips smoothly side-to-side with tall posture and controlled breathing.'
+          },
+          {
+            id: 'd3_e4',
+            name: 'Thoracic Open-Books',
+            modality: 'Calisthenics',
+            supersetGroup: null,
+            sets: 2,
+            defaultLbs: '0',
+            defaultReps: '10',
+            targetRepsLabel: '10 sweeps / side',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Lie on your side with knees stacked and sweep your top arm across to open your upper back toward the floor.'
+          },
+          {
+            id: 'd3_e5',
+            name: 'Dead Hangs or Scapular Wall Slides',
+            modality: 'Calisthenics',
+            supersetGroup: null,
+            sets: 2,
+            defaultLbs: '0',
+            defaultReps: '25',
+            targetRepsLabel: '20–30s hang or 10 slides',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Decompresses spine and restores overhead shoulder mobility before Day 4 pressing.'
           }
         ]
       },
@@ -902,15 +1006,30 @@
         shortLabel: 'Day 4',
         tag: 'Push & Arms',
         title: 'Push & Arms',
-        subtitle: 'Chest Press & Dumbbell Hypertrophy finished with high-tension Push-Ups, Dips & Arm Supersets.',
+        subtitle: 'Chest & shoulder prep, machine/dumbbell presses, push-ups/dips, and upper supersets.',
         accent: 'crimson',
+        mobilityWarmup: [
+          {
+            name: 'Pec Doorway/Floor Stretch + Scapular Push-Ups',
+            prescription: '2 rounds × 20s stretch/side + 8 scapular push-ups',
+            cue: 'Open anterior shoulders and warm up serratus/scapular control before pressing heavy.'
+          },
+          {
+            name: 'Arm Circles & Band/DB External Rotations',
+            prescription: '2 rounds × 10 reps (~5 min total warmup)',
+            cue: 'Prep elbows and rotator cuff tendons for pressing, push-ups, dips, and curls.'
+          }
+        ],
         exercises: [
           {
             id: 'd4_e1',
             name: 'Seated Machine Chest Press',
             modality: 'Machine',
+            supersetGroup: null,
             sets: 4,
-            reps: '8–10 reps',
+            defaultLbs: '',
+            defaultReps: '8',
+            targetRepsLabel: '8–10 reps',
             restLabel: '120s',
             restSeconds: 120,
             tip: 'Keep shoulder blades pinched back against the pad and drive forward explosively.'
@@ -919,8 +1038,11 @@
             id: 'd4_e2',
             name: 'Incline or Flat Dumbbell Bench Press',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 3,
-            reps: '10–12 reps',
+            defaultLbs: '',
+            defaultReps: '10',
+            targetRepsLabel: '10–12 reps',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Use an incline bench if adjustable, or flat/floor press; lower dumbbells with a 2-second eccentric.'
@@ -929,28 +1051,37 @@
             id: 'd4_e3',
             name: 'Decline or Standard Push-Ups (Slow Eccentric)',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 3,
-            reps: 'AMRAP (1–2 RIR)',
+            defaultLbs: '0',
+            defaultReps: '12',
+            targetRepsLabel: 'AMRAP (1–2 RIR)',
             restLabel: '75s',
             restSeconds: 75,
-            tip: 'Elevate feet for upper-chest emphasis if strong enough. Take 3 full seconds on the way down; stop 1–2 reps shy of failure.'
+            tip: 'Elevate feet for upper-chest emphasis if strong enough. Take 3 full seconds down; leave 1–2 clean reps in reserve.'
           },
           {
             id: 'd4_e4',
             name: 'Bench / Chair Dips (Bodyweight or DB on Lap)',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 3,
-            reps: '10–15 reps',
+            defaultLbs: '0',
+            defaultReps: '12',
+            targetRepsLabel: '10–15 reps',
             restLabel: '75s',
             restSeconds: 75,
-            tip: 'Keep torso close to the bench/chair edge and shoulders depressed down away from your ears to torch triceps.'
+            tip: 'Keep torso close to the bench/chair edge and shoulders down away from ears to target triceps.'
           },
           {
             id: 'd4_e5',
             name: 'Superset: Dumbbell Bicep Curls + Overhead DB Tricep Extension',
             modality: 'Dumbbell',
+            supersetGroup: 'Upper Arm Superset (Dumbbell)',
             sets: 3,
-            reps: '10–12 reps each',
+            defaultLbs: '',
+            defaultReps: '10',
+            targetRepsLabel: '10–12 reps each',
             restLabel: '75s',
             restSeconds: 75,
             tip: 'Perform curls right into overhead dumbbell tricep extensions before taking your 75s rest.'
@@ -959,8 +1090,11 @@
             id: 'd4_e6',
             name: 'Dumbbell Hammer Curls',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 3,
-            reps: '12 reps',
+            defaultLbs: '',
+            defaultReps: '12',
+            targetRepsLabel: '12 reps',
             restLabel: '60s',
             restSeconds: 60,
             tip: 'Neutral palms-facing grip targets the brachialis and builds thick forearms.'
@@ -972,15 +1106,30 @@
         shortLabel: 'Day 5',
         tag: 'Conditioning',
         title: 'Full-Body Power & Conditioning',
-        subtitle: 'Explosive Hip Hinge, Underhand Pulldowns, Commandos + Burpees, Carries & Sprint Finishers.',
+        subtitle: 'Dynamic mobility warmup, dumbbell swings, underhand pulldowns, commandos + burpees, carries & intervals.',
         accent: 'cursed',
+        mobilityWarmup: [
+          {
+            name: 'Hip Hinge Good-Mornings + Inchworms',
+            prescription: '2 rounds × 8 hip hinges + 5 inchworms',
+            cue: 'Wake up hamstrings, glutes, and core bracing before ballistic swings and conditioning.'
+          },
+          {
+            name: 'Ankle Hops & Shoulder Mobility Circles',
+            prescription: '2 rounds × 15 light hops (~5 min total warmup)',
+            cue: 'Build springy Achilles stiffness and full-body readiness for intervals.'
+          }
+        ],
         exercises: [
           {
             id: 'd5_e1',
             name: 'Dumbbell Swings',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 4,
-            reps: '15 reps',
+            defaultLbs: '',
+            defaultReps: '15',
+            targetRepsLabel: '15 reps',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Interlock hands around one end of a heavy dumbbell and snap hips forward explosively.'
@@ -989,8 +1138,11 @@
             id: 'd5_e2',
             name: 'Underhand Close-Grip Lat Pulldowns',
             modality: 'Machine',
+            supersetGroup: null,
             sets: 3,
-            reps: '8–10 reps',
+            defaultLbs: '',
+            defaultReps: '8',
+            targetRepsLabel: '8–10 reps',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Palms facing you at shoulder width to overload both lower lats and biceps.'
@@ -999,8 +1151,11 @@
             id: 'd5_e3',
             name: 'Plank-to-Pushups (Commandos) + Burpees',
             modality: 'Calisthenics',
+            supersetGroup: 'Full-Body Conditioning Pair (Calisthenics)',
             sets: 3,
-            reps: '8 each',
+            defaultLbs: '0',
+            defaultReps: '8',
+            targetRepsLabel: '8 commandos + 8 burpees',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Complete 8 alternating forearm-to-hand commandos, then immediately hit 8 crisp chest-to-floor burpees.'
@@ -1009,8 +1164,11 @@
             id: 'd5_e4',
             name: 'Heavy Dumbbell Farmer’s Carries',
             modality: 'Dumbbell',
+            supersetGroup: null,
             sets: 3,
-            reps: '40 yards',
+            defaultLbs: '',
+            defaultReps: '40',
+            targetRepsLabel: '40 yards',
             restLabel: '90s',
             restSeconds: 90,
             tip: 'Hold your heaviest dumbbells at your sides, stand tall with shoulders packed down, and walk with brisk steps.'
@@ -1019,8 +1177,11 @@
             id: 'd5_e5',
             name: 'Sprint Intervals or Shadowboxing / Jump Rope Finisher',
             modality: 'Calisthenics',
+            supersetGroup: null,
             sets: 6,
-            reps: '20s all-out / 70s rest',
+            defaultLbs: '0',
+            defaultReps: '20',
+            targetRepsLabel: '20s all-out / 70s rest',
             restLabel: '70s',
             restSeconds: 70,
             tip: 'Give 100% combat speed during each 20-second burst, then catch your breath for 70 seconds.'
@@ -1029,19 +1190,17 @@
       }
     ];
 
-    const STORAGE_KEY = 'toji_workout_hybrid_v3';
-    /**
-     * Default Application State
-     */
+    const STORAGE_KEY = 'toji_workout_hevy_v4';
+
     let appState = {
       activeDayId: 'day1',
-      completedSets: {}, // { "d1_e1": [true, false, false, false] }
-      logs: {}           // { "d1_e1": { weight: "45 lbs", notes: "Felt strong" } }
+      sessionStartTime: Date.now(),
+      exercises: {},
+      previousByExercise: {},
+      history: [],
+      selectedCalendarDate: getTodayDateString()
     };
 
-    /**
-     * Timer State
-     */
     let timerState = {
       defaultSeconds: 90,
       remainingSeconds: 90,
@@ -1049,9 +1208,52 @@
       intervalId: null
     };
 
-    /**
-     * Load state safely from localStorage
-     */
+    function createDefaultSetsForExercise(exercise) {
+      return Array.from({ length: exercise.sets }, () => ({
+        lbs: exercise.defaultLbs || '',
+        reps: exercise.defaultReps || '',
+        completed: false,
+        skipped: false
+      }));
+    }
+
+    function getExerciseState(exercise) {
+      if (!appState.exercises[exercise.id]) {
+        appState.exercises[exercise.id] = {
+          skipped: false,
+          notes: '',
+          sets: createDefaultSetsForExercise(exercise)
+        };
+      }
+      const state = appState.exercises[exercise.id];
+      if (!Array.isArray(state.sets) || state.sets.length === 0) {
+        state.sets = createDefaultSetsForExercise(exercise);
+      }
+      state.sets.forEach((s) => {
+        if (typeof s.skipped !== 'boolean') {
+          s.skipped = false;
+        }
+        if (typeof s.completed !== 'boolean') {
+          s.completed = false;
+        }
+      });
+      if (typeof state.skipped !== 'boolean') {
+        state.skipped = false;
+      }
+      if (typeof state.notes !== 'string') {
+        state.notes = '';
+      }
+      return state;
+    }
+
+    function normalizeExerciseStates() {
+      WORKOUT_PLAN.forEach((day) => {
+        day.exercises.forEach((ex) => {
+          getExerciseState(ex);
+        });
+      });
+    }
+
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -1059,18 +1261,21 @@
           const parsed = JSON.parse(raw);
           appState = {
             activeDayId: parsed.activeDayId || 'day1',
-            completedSets: parsed.completedSets || {},
-            logs: parsed.logs || {}
+            sessionStartTime: parsed.sessionStartTime || Date.now(),
+            exercises: parsed.exercises || {},
+            previousByExercise: parsed.previousByExercise || {},
+            history: Array.isArray(parsed.history) ? parsed.history : [],
+            selectedCalendarDate: parsed.selectedCalendarDate || getTodayDateString()
           };
+        } else {
+          appState.sessionStartTime = Date.now();
         }
       } catch (err) {
         console.error('Failed to load workout state from localStorage:', err);
       }
+      normalizeExerciseStates();
     }
 
-    /**
-     * Save state safely to localStorage
-     */
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
@@ -1079,32 +1284,24 @@
       }
     }
 
-    /**
-     * Ensure set boolean array exists and matches expected length
-     */
-    function getSetArray(exercise) {
-      const existing = appState.completedSets[exercise.id];
-      if (Array.isArray(existing) && existing.length === exercise.sets) {
-        return existing;
+    function formatElapsedClock(totalSecs) {
+      const safeSecs = Math.max(0, Math.floor(totalSecs));
+      const hrs = Math.floor(safeSecs / 3600);
+      const mins = Math.floor((safeSecs % 3600) / 60);
+      const secs = safeSecs % 60;
+      if (hrs > 0) {
+        return `${hrs}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       }
-      const arr = new Array(exercise.sets).fill(false);
-      appState.completedSets[exercise.id] = arr;
-      return arr;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
-    /**
-     * Get weight & notes object for an exercise
-     */
-    function getExerciseLog(exerciseId) {
-      if (!appState.logs[exerciseId]) {
-        appState.logs[exerciseId] = { weight: '', notes: '' };
-      }
-      return appState.logs[exerciseId];
+    function updateSessionClockBadge() {
+      const el = document.getElementById('session-elapsed-text');
+      if (!el) return;
+      const elapsed = Math.floor((Date.now() - (appState.sessionStartTime || Date.now())) / 1000);
+      el.textContent = formatElapsedClock(elapsed);
     }
 
-    /**
-     * Show non-blocking toast notification
-     */
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -1116,7 +1313,7 @@
           : 'border-cursed-500/50 text-slate-200';
 
       toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl bg-obsidian/95 backdrop-blur-md border ${borderClass} shadow-xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0`;
-      toast.innerHTML = `<span>${message}</span>`;
+      toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
       container.appendChild(toast);
 
       requestAnimationFrame(() => {
@@ -1129,9 +1326,6 @@
       }, 2600);
     }
 
-    /**
-     * Play subtle Web Audio API chime when timer finishes (no external audio files needed)
-     */
     function playTimerChime() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1151,14 +1345,9 @@
           osc.start(now + idx * 0.12);
           osc.stop(now + idx * 0.12 + 0.36);
         });
-      } catch (e) {
-        // Ignore audio errors if blocked by browser autoplay policy
-      }
+      } catch (e) {}
     }
 
-    /**
-     * Timer Logic
-     */
     function formatTime(totalSeconds) {
       const mins = Math.floor(totalSeconds / 60);
       const secs = totalSeconds % 60;
@@ -1248,9 +1437,7 @@
       updateTimerUI();
     }
 
-    /**
-     * Calculate Progress Metrics (Weekly & Per-Day)
-     */
+    // Skipped exercises and skipped sets are excluded from active denominator so skipping never blocks day completion
     function calculateProgress() {
       let totalSets = 0;
       let completedCount = 0;
@@ -1259,17 +1446,41 @@
       WORKOUT_PLAN.forEach((day) => {
         let dayTotal = 0;
         let dayDone = 0;
+        let activeExerciseCount = 0;
+        let doneOrSkippedExerciseCount = 0;
+
         day.exercises.forEach((ex) => {
-          const arr = getSetArray(ex);
-          dayTotal += arr.length;
-          dayDone += arr.filter(Boolean).length;
+          const exState = getExerciseState(ex);
+          if (exState.skipped) {
+            doneOrSkippedExerciseCount += 1;
+            return;
+          }
+          const activeSets = exState.sets.filter((s) => !s.skipped);
+          if (activeSets.length === 0) {
+            doneOrSkippedExerciseCount += 1;
+            return;
+          }
+          activeExerciseCount += 1;
+          dayTotal += activeSets.length;
+          const doneInEx = activeSets.filter((s) => s.completed).length;
+          dayDone += doneInEx;
+          if (doneInEx === activeSets.length) {
+            doneOrSkippedExerciseCount += 1;
+          }
         });
+
         totalSets += dayTotal;
         completedCount += dayDone;
+        const isDayComplete =
+          activeExerciseCount === 0
+            ? day.exercises.length > 0
+            : doneOrSkippedExerciseCount === day.exercises.length && dayTotal > 0;
+
         dayStats[day.id] = {
           total: dayTotal,
           done: dayDone,
-          percent: dayTotal > 0 ? Math.round((dayDone / dayTotal) * 100) : 0
+          isComplete: isDayComplete,
+          percent: dayTotal > 0 ? Math.round((dayDone / dayTotal) * 100) : isDayComplete ? 100 : 0
         };
       });
 
@@ -1277,23 +1488,280 @@
       return { totalSets, completedCount, weeklyPercent, dayStats };
     }
 
-    /**
-     * Render Header Progress, Day Tabs, and Active Workout Panel
-     */
+    function finishCurrentWorkout() {
+      const activeDay = WORKOUT_PLAN.find((d) => d.id === appState.activeDayId) || WORKOUT_PLAN[0];
+      const durationSeconds = Math.max(1, Math.floor((Date.now() - (appState.sessionStartTime || Date.now())) / 1000));
+
+      let totalVolumeLbs = 0;
+      let completedSetsCount = 0;
+      const recordedExercises = [];
+
+      activeDay.exercises.forEach((ex) => {
+        const exState = getExerciseState(ex);
+        if (exState.skipped) return;
+
+        const completedRows = [];
+        exState.sets.forEach((s, idx) => {
+          if (s.skipped) return;
+          const parsedLbs = parseFloat(s.lbs);
+          const parsedReps = parseFloat(s.reps);
+          if (s.completed) {
+            completedSetsCount += 1;
+            if (!Number.isNaN(parsedLbs) && !Number.isNaN(parsedReps) && parsedLbs > 0 && parsedReps > 0) {
+              totalVolumeLbs += parsedLbs * parsedReps;
+            }
+          }
+          completedRows.push({
+            setNumber: idx + 1,
+            lbs: s.lbs || '',
+            reps: s.reps || '',
+            completed: Boolean(s.completed)
+          });
+        });
+
+        const hasAnyData = completedRows.some((r) => r.completed || r.lbs !== '' || r.reps !== '');
+        if (hasAnyData) {
+          recordedExercises.push({
+            exerciseId: ex.id,
+            name: ex.name,
+            modality: ex.modality,
+            notes: exState.notes || '',
+            sets: completedRows
+          });
+
+          appState.previousByExercise[ex.id] = completedRows.map((r) => ({
+            lbs: r.lbs,
+            reps: r.reps
+          }));
+        }
+      });
+
+      const todayStr = getTodayDateString();
+      const entry = {
+        id: `wk_${Date.now()}`,
+        date: todayStr,
+        finishedAt: new Date().toISOString(),
+        dayId: activeDay.id,
+        dayTitle: `${activeDay.shortLabel}: ${activeDay.title}`,
+        durationSeconds,
+        totalVolumeLbs: Math.round(totalVolumeLbs),
+        completedSetsCount,
+        exercises: recordedExercises
+      };
+
+      appState.history.unshift(entry);
+      appState.selectedCalendarDate = todayStr;
+      appState.sessionStartTime = Date.now();
+      saveState();
+      updateSessionClockBadge();
+      renderApp();
+      showToast(`Saved ${activeDay.shortLabel} workout to History Calendar!`, 'success');
+    }
+
+    function formatPreviousSetLabel(exerciseId, setIndex) {
+      const prevList = appState.previousByExercise[exerciseId];
+      if (!Array.isArray(prevList) || !prevList[setIndex]) {
+        return '—';
+      }
+      const prev = prevList[setIndex];
+      const lbsText = prev.lbs !== '' && prev.lbs !== undefined ? `${prev.lbs} lbs` : 'BW';
+      const repsText = prev.reps !== '' && prev.reps !== undefined ? `${prev.reps} reps` : '—';
+      return `${lbsText} × ${repsText}`;
+    }
+
+    function renderHistoryCalendarView(panel) {
+      const todayStr = getTodayDateString();
+      const selectedDate = appState.selectedCalendarDate || todayStr;
+
+      const calendarDays = [];
+      const baseDate = new Date(`${todayStr}T12:00:00`);
+      for (let i = 27; i >= 0; i--) {
+        const d = new Date(baseDate);
+        d.setDate(baseDate.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dayNum = String(d.getDate()).padStart(2, '0');
+        const isoDate = `${y}-${m}-${dayNum}`;
+        const workoutsOnDate = appState.history.filter((h) => h.date === isoDate);
+        calendarDays.push({
+          isoDate,
+          dayNum: d.getDate(),
+          weekdayShort: d.toLocaleDateString(undefined, { weekday: 'short' }),
+          count: workoutsOnDate.length
+        });
+      }
+
+      const matchingWorkouts = appState.history.filter((h) => h.date === selectedDate);
+
+      const calendarTilesHTML = calendarDays
+        .map((cell) => {
+          const isSelected = cell.isoDate === selectedDate;
+          const hasWorkout = cell.count > 0;
+          const tileClass = isSelected
+            ? 'bg-crimson-600/25 border-crimson-500 text-white ring-1 ring-crimson-500/60'
+            : hasWorkout
+            ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-200 hover:bg-emerald-500/25'
+            : 'bg-void/80 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200';
+
+          return `
+            <button
+              type="button"
+              onclick="selectCalendarDate('${cell.isoDate}')"
+              class="p-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center justify-between min-h-[62px] ${tileClass}"
+            >
+              <span class="text-[10px] font-mono uppercase opacity-75">${cell.weekdayShort}</span>
+              <span class="text-sm font-mono font-bold">${cell.dayNum}</span>
+              <span class="h-1.5 w-1.5 rounded-full ${hasWorkout ? 'bg-emerald-400' : 'bg-transparent'}"></span>
+            </button>
+          `;
+        })
+        .join('');
+
+      const workoutsListHTML =
+        matchingWorkouts.length === 0
+          ? `
+            <div class="rounded-2xl bg-obsidian border border-slate-800/90 p-6 text-center space-y-2">
+              <div class="text-sm font-bold text-slate-200">No workouts logged on ${escapeHtml(selectedDate)}</div>
+              <p class="text-xs text-slate-400">
+                Tap any green-dotted date above to inspect a completed session, or tap <strong class="text-emerald-400">Finish Workout</strong> on a training day to record today's session.
+              </p>
+            </div>
+          `
+          : matchingWorkouts
+              .map((session) => {
+                const timeStr = session.finishedAt
+                  ? new Date(session.finishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : '';
+
+                const exerciseCardsHTML = session.exercises
+                  .map((ex) => {
+                    const setRowsHTML = ex.sets
+                      .map(
+                        (s) => `
+                          <tr class="border-t border-slate-800/70 text-xs font-mono">
+                            <td class="py-1.5 px-2 text-slate-400">Set ${s.setNumber}</td>
+                            <td class="py-1.5 px-2 text-slate-200">${s.lbs ? `${escapeHtml(s.lbs)} lbs` : 'BW'}</td>
+                            <td class="py-1.5 px-2 text-slate-200">${s.reps ? `${escapeHtml(s.reps)} reps` : '—'}</td>
+                            <td class="py-1.5 px-2 text-right ${s.completed ? 'text-emerald-400' : 'text-slate-500'}">
+                              ${s.completed ? '✓ Done' : 'Logged'}
+                            </td>
+                          </tr>
+                        `
+                      )
+                      .join('');
+
+                    return `
+                      <div class="rounded-xl bg-void/80 border border-slate-800 p-3.5 space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                          <div class="font-bold text-sm text-white">${escapeHtml(ex.name)}</div>
+                          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-slatecard text-slate-300 border border-slate-700">
+                            ${escapeHtml(ex.modality)}
+                          </span>
+                        </div>
+                        ${
+                          ex.notes
+                            ? `<p class="text-xs text-slate-400 italic">Note: ${escapeHtml(ex.notes)}</p>`
+                            : ''
+                        }
+                        <div class="overflow-x-auto">
+                          <table class="w-full text-left border-collapse">
+                            <thead>
+                              <tr class="text-[10px] font-mono uppercase text-slate-500">
+                                <th class="py-1 px-2">Set</th>
+                                <th class="py-1 px-2">Weight</th>
+                                <th class="py-1 px-2">Reps</th>
+                                <th class="py-1 px-2 text-right">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>${setRowsHTML}</tbody>
+                          </table>
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join('');
+
+                return `
+                  <article class="rounded-2xl bg-obsidian border border-slate-800/90 p-5 space-y-4 shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
+                      <div>
+                        <div class="text-xs font-mono text-emerald-400 uppercase font-bold">
+                          ${escapeHtml(session.date)} ${timeStr ? `• ${escapeHtml(timeStr)}` : ''}
+                        </div>
+                        <h3 class="text-lg font-extrabold text-white mt-0.5">${escapeHtml(session.dayTitle)}</h3>
+                      </div>
+                      <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+                        <span class="px-2.5 py-1 rounded-lg bg-slatecard border border-slate-700 text-slate-200">
+                          ${formatElapsedClock(session.durationSeconds)}
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slatecard border border-slate-700 text-blade-400">
+                          ${session.completedSetsCount} sets
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slatecard border border-slate-700 text-amber-300">
+                          ${Number(session.totalVolumeLbs || 0).toLocaleString()} lbs vol
+                        </span>
+                      </div>
+                    </div>
+                    <div class="space-y-2.5">
+                      ${exerciseCardsHTML}
+                    </div>
+                  </article>
+                `;
+              })
+              .join('');
+
+      panel.innerHTML = `
+        <div class="rounded-2xl bg-gradient-to-br from-slatecard via-obsidian to-obsidian border border-slate-800/90 p-5 sm:p-6 shadow-lg space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md border bg-cursed-500/15 text-cursed-400 border-cursed-500/30">
+                Workout Log &amp; Calendar
+              </span>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+                Training History (${appState.history.length} ${appState.history.length === 1 ? 'Session' : 'Sessions'})
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                Select any day on the 28-day calendar to inspect past weights, reps, duration, and total volume.
+              </p>
+            </div>
+            <button
+              type="button"
+              onclick="selectCalendarDate('${todayStr}')"
+              class="px-3.5 py-2 rounded-xl bg-slatecard hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 cursor-pointer self-start sm:self-center"
+            >
+              Jump to Today
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1.5 sm:gap-2">
+            ${calendarTilesHTML}
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-300">
+              Sessions on <span class="font-mono text-white">${escapeHtml(selectedDate)}</span>
+            </h3>
+            <span class="text-xs font-mono text-slate-500">${matchingWorkouts.length} found</span>
+          </div>
+          ${workoutsListHTML}
+        </div>
+      `;
+    }
+
     function renderApp() {
       const { totalSets, completedCount, weeklyPercent, dayStats } = calculateProgress();
 
-      // Update Top Weekly Bar
       document.getElementById('weekly-percent-text').textContent = `${weeklyPercent}%`;
       document.getElementById('weekly-sets-text').textContent = `(${completedCount}/${totalSets} sets)`;
       document.getElementById('weekly-progress-bar').style.width = `${weeklyPercent}%`;
 
-      // Render Day Tabs
       const tabsContainer = document.getElementById('day-tabs-container');
-      tabsContainer.innerHTML = WORKOUT_PLAN.map((day) => {
+      const dayTabsHTML = WORKOUT_PLAN.map((day) => {
         const isActive = day.id === appState.activeDayId;
         const stat = dayStats[day.id];
-        const isDayComplete = stat.total > 0 && stat.done === stat.total;
+        const isDayComplete = stat.isComplete;
 
         const activeStyles = isActive
           ? 'bg-slatecard border-crimson-500/80 text-white shadow-lg glow-crimson'
@@ -1325,10 +1793,43 @@
         `;
       }).join('');
 
-      // Render Active Day Panel
+      const isHistoryActive = appState.activeDayId === 'history';
+      const historyTabHTML = `
+        <button
+          type="button"
+          onclick="selectDay('history')"
+          class="text-left p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+            isHistoryActive
+              ? 'bg-slatecard border-cursed-500 text-white shadow-lg glow-violet'
+              : 'bg-obsidian/80 hover:bg-slatecard/70 border-slate-800/90 text-slate-400 hover:text-slate-200'
+          }"
+        >
+          <div class="flex items-center justify-between w-full">
+            <span class="text-xs font-mono font-bold uppercase ${isHistoryActive ? 'text-cursed-400' : 'text-slate-400'}">
+              Calendar
+            </span>
+            <span class="text-[11px] font-mono text-emerald-400">${appState.history.length} logs</span>
+          </div>
+          <div class="text-xs sm:text-sm font-bold truncate w-full">
+            Workout History
+          </div>
+          <div class="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+            <div class="h-full bg-cursed-500 transition-all duration-300" style="width: ${appState.history.length > 0 ? '100%' : '0%'}"></div>
+          </div>
+        </button>
+      `;
+
+      tabsContainer.innerHTML = dayTabsHTML + historyTabHTML;
+
+      const panel = document.getElementById('workout-panel');
+
+      if (isHistoryActive) {
+        renderHistoryCalendarView(panel);
+        return;
+      }
+
       const activeDay = WORKOUT_PLAN.find((d) => d.id === appState.activeDayId) || WORKOUT_PLAN[0];
       const activeStat = dayStats[activeDay.id];
-      const panel = document.getElementById('workout-panel');
 
       const badgeColor =
         activeDay.accent === 'blade'
@@ -1337,11 +1838,43 @@
           ? 'bg-cursed-500/15 text-cursed-400 border-cursed-500/30'
           : 'bg-crimson-500/15 text-crimson-400 border-crimson-500/30';
 
+      const mobilityWarmupHTML =
+        Array.isArray(activeDay.mobilityWarmup) && activeDay.mobilityWarmup.length > 0
+          ? `
+            <div class="rounded-2xl bg-obsidian/90 border border-emerald-500/30 p-4 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  Pre-Session Mobility Warm-Up
+                </span>
+                <span class="text-[11px] font-mono text-slate-400">~5 min before working sets</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                ${activeDay.mobilityWarmup
+                  .map(
+                    (drill) => `
+                      <div class="p-3 rounded-xl bg-void/75 border border-slate-800/90 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="text-xs font-bold text-white">${escapeHtml(drill.name)}</span>
+                          <span class="text-[10px] font-mono text-emerald-300 shrink-0">${escapeHtml(drill.prescription)}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">${escapeHtml(drill.cue)}</p>
+                      </div>
+                    `
+                  )
+                  .join('')}
+              </div>
+            </div>
+          `
+          : '';
+
       const exercisesHTML = activeDay.exercises
         .map((ex, index) => {
-          const setsArr = getSetArray(ex);
-          const log = getExerciseLog(ex.id);
-          const allSetsDone = setsArr.every(Boolean);
+          const exState = getExerciseState(ex);
+          const setsList = exState.sets;
+          const isSkipped = Boolean(exState.skipped);
+          const activeSetsList = setsList.filter((s) => !s.skipped);
+          const allSetsDone =
+            !isSkipped && activeSetsList.length > 0 && activeSetsList.every((s) => s.completed);
 
           const modalityBadgeClass =
             ex.modality === 'Machine'
@@ -1350,42 +1883,107 @@
               ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
               : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35';
 
-          const setButtonsHTML = setsArr
-            .map((checked, setIdx) => {
-              const btnStyle = checked
-                ? 'bg-emerald-500/20 border-emerald-500/70 text-emerald-300 shadow-sm'
-                : 'bg-void/80 hover:bg-slate-800/90 border-slate-700/80 text-slate-400 hover:text-white';
+          const setRowsHTML = setsList
+            .map((setItem, setIdx) => {
+              const prevLabel = formatPreviousSetLabel(ex.id, setIdx);
+              const isSetSkipped = Boolean(setItem.skipped);
+              const rowCheckedStyle = isSetSkipped
+                ? 'bg-void/40 border-slate-800/60 opacity-50'
+                : setItem.completed
+                ? 'bg-emerald-500/10 border-emerald-500/35'
+                : 'bg-void/70 border-slate-800/90';
 
               return `
-                <button
-                  type="button"
-                  onclick="toggleSet('${ex.id}', ${setIdx})"
-                  class="px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${btnStyle}"
-                  aria-pressed="${checked}"
-                >
-                  <span class="w-4 h-4 rounded-md flex items-center justify-center border ${
-                    checked ? 'bg-emerald-500 border-emerald-400 text-void' : 'border-slate-600'
-                  }">
-                    ${checked ? '✓' : ''}
-                  </span>
-                  Set ${setIdx + 1}
-                </button>
+                <div class="grid grid-cols-12 items-center gap-1.5 sm:gap-2 p-2 rounded-xl border transition-all ${rowCheckedStyle}">
+                  <div class="col-span-2 sm:col-span-1 text-center">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slatecard border border-slate-700 text-xs font-mono font-bold ${
+                      isSetSkipped ? 'line-through text-slate-500' : 'text-slate-200'
+                    }">
+                      ${setIdx + 1}
+                    </span>
+                  </div>
+
+                  <div class="col-span-3 sm:col-span-3 text-[11px] font-mono text-slate-400 truncate" title="Previous session: ${escapeHtml(prevLabel)}">
+                    ${escapeHtml(prevLabel)}
+                  </div>
+
+                  <div class="col-span-2 sm:col-span-2">
+                    <input
+                      type="text"
+                      inputmode="decimal"
+                      ${isSetSkipped ? 'disabled' : ''}
+                      aria-label="Set ${setIdx + 1} weight in lbs"
+                      value="${escapeHtml(setItem.lbs)}"
+                      oninput="updateSetField('${ex.id}', ${setIdx}, 'lbs', this.value)"
+                      placeholder="LBS"
+                      class="w-full px-2 py-1.5 rounded-lg bg-slatecard border border-slate-700/80 focus:border-cursed-500 focus:outline-none text-xs font-mono text-white placeholder-slate-500 disabled:opacity-40"
+                    />
+                  </div>
+
+                  <div class="col-span-2 sm:col-span-2">
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      ${isSetSkipped ? 'disabled' : ''}
+                      aria-label="Set ${setIdx + 1} reps"
+                      value="${escapeHtml(setItem.reps)}"
+                      oninput="updateSetField('${ex.id}', ${setIdx}, 'reps', this.value)"
+                      placeholder="${escapeHtml(ex.defaultReps || 'Reps')}"
+                      class="w-full px-2 py-1.5 rounded-lg bg-slatecard border border-slate-700/80 focus:border-cursed-500 focus:outline-none text-xs font-mono text-white placeholder-slate-500 disabled:opacity-40"
+                    />
+                  </div>
+
+                  <div class="col-span-3 sm:col-span-4 flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      onclick="toggleSkipSet('${ex.id}', ${setIdx})"
+                      aria-pressed="${isSetSkipped}"
+                      title="${isSetSkipped ? `Unskip Set ${setIdx + 1}` : `Skip Set ${setIdx + 1}`}"
+                      class="px-2 py-1.5 rounded-lg border text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                        isSetSkipped
+                          ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
+                          : 'bg-slatecard hover:bg-slate-800 border-slate-700/80 text-slate-400 hover:text-amber-300'
+                      }"
+                    >
+                      ${isSetSkipped ? 'Unskip' : 'Skip'}
+                    </button>
+
+                    <button
+                      type="button"
+                      ${isSetSkipped ? 'disabled' : ''}
+                      onclick="toggleSingleSet('${ex.id}', ${setIdx})"
+                      aria-pressed="${setItem.completed}"
+                      title="Mark Set ${setIdx + 1} complete"
+                      class="w-8 h-8 rounded-xl border flex items-center justify-center transition-all cursor-pointer font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed ${
+                        setItem.completed && !isSetSkipped
+                          ? 'bg-emerald-500 border-emerald-400 text-void shadow-sm'
+                          : 'bg-slatecard border-slate-700 text-slate-400 hover:text-white hover:border-emerald-500/60'
+                      }"
+                    >
+                      ✓
+                    </button>
+                  </div>
+                </div>
               `;
             })
             .join('');
 
           return `
-            <article class="rounded-2xl bg-obsidian border ${
-              allSetsDone ? 'border-emerald-500/40 bg-obsidian/90' : 'border-slate-800/90'
-            } p-4 sm:p-5 transition-all shadow-md">
+            <article class="rounded-2xl bg-obsidian border transition-all shadow-md ${
+              isSkipped
+                ? 'border-slate-800/60 opacity-55'
+                : allSetsDone
+                ? 'border-emerald-500/40 bg-obsidian/90'
+                : 'border-slate-800/90'
+            } p-4 sm:p-5">
               <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <!-- Exercise Title & Whole-Exercise Checkbox -->
                 <div class="flex items-start gap-3">
                   <button
                     type="button"
+                    ${isSkipped ? 'disabled' : ''}
                     onclick="toggleWholeExercise('${ex.id}')"
-                    title="Mark entire exercise complete"
-                    class="mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                    title="Mark all active sets in this exercise complete"
+                    class="mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                       allSetsDone
                         ? 'bg-emerald-500 border-emerald-400 text-void font-bold'
                         : 'bg-slatecard border-slate-600 hover:border-crimson-400 text-transparent'
@@ -1397,68 +1995,106 @@
                     <div class="flex flex-wrap items-center gap-2">
                       <span class="text-xs font-mono text-slate-500">#${index + 1}</span>
                       <h3 class="text-base sm:text-lg font-bold ${
-                        allSetsDone ? 'line-through text-slate-400' : 'text-white'
+                        isSkipped
+                          ? 'line-through text-slate-400'
+                          : allSetsDone
+                          ? 'text-emerald-300'
+                          : 'text-white'
                       }">
-                        ${ex.name}
+                        ${escapeHtml(ex.name)}
                       </h3>
                       <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${modalityBadgeClass}">
-                        ${ex.modality}
+                        ${escapeHtml(ex.modality)}
                       </span>
+                      ${
+                        ex.supersetGroup
+                          ? `<span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-cursed-500/15 text-cursed-300 border border-cursed-500/35">
+                               SS: ${escapeHtml(ex.supersetGroup)}
+                             </span>`
+                          : ''
+                      }
+                      ${
+                        isSkipped
+                          ? `<span class="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/40">
+                               Skipped
+                             </span>`
+                          : ''
+                      }
                     </div>
-                    <p class="text-xs text-slate-400 mt-1">${ex.tip}</p>
+                    <p class="text-xs text-slate-400 mt-1">${escapeHtml(ex.tip)}</p>
                   </div>
                 </div>
 
-                <!-- Target Sets/Reps & Interactive Rest Badge -->
                 <div class="flex flex-wrap items-center gap-2 sm:justify-end shrink-0 pl-9 sm:pl-0">
                   <span class="px-2.5 py-1 rounded-lg bg-slatecard border border-slate-700/80 text-xs font-mono font-semibold text-slate-200">
-                    ${ex.sets} × ${ex.reps}
+                    ${activeSetsList.length} × ${escapeHtml(ex.targetRepsLabel)}
                   </span>
                   <button
                     type="button"
-                    onclick="triggerExerciseRest(${ex.restSeconds}, '${ex.name.replace(/'/g, "\\'")}')"
-                    title="Click to start ${ex.restLabel} rest timer"
+                    onclick="triggerExerciseRest(${ex.restSeconds}, '${escapeHtml(ex.name.replace(/'/g, ''))}')"
+                    title="Click to start ${escapeHtml(ex.restLabel)} rest timer"
                     class="px-2.5 py-1 rounded-lg bg-blade-500/15 hover:bg-blade-500/25 border border-blade-500/40 text-xs font-mono font-semibold text-blade-400 transition-all cursor-pointer flex items-center gap-1"
                   >
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Rest ${ex.restLabel}
+                    Rest ${escapeHtml(ex.restLabel)}
+                  </button>
+                  <button
+                    type="button"
+                    onclick="toggleSkipExercise('${ex.id}')"
+                    aria-pressed="${isSkipped}"
+                    class="px-2.5 py-1 rounded-lg border text-xs font-mono font-semibold transition-all cursor-pointer ${
+                      isSkipped
+                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
+                        : 'bg-slatecard hover:bg-slate-800 border-slate-700/80 text-slate-400 hover:text-amber-300'
+                    }"
+                  >
+                    ${isSkipped ? 'Unskip' : 'Skip'}
                   </button>
                 </div>
               </div>
 
-              <!-- Individual Set Checkboxes -->
-              <div class="mt-4 pt-3.5 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-                ${setButtonsHTML}
+              <!-- Per-Set Rows -->
+              <div class="mt-4 pt-3.5 border-t border-slate-800/80 space-y-2 ${isSkipped ? 'pointer-events-none' : ''}">
+                <div class="grid grid-cols-12 items-center gap-1.5 sm:gap-2 px-2 text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                  <div class="col-span-2 sm:col-span-1 text-center">Set</div>
+                  <div class="col-span-3 sm:col-span-3">Previous</div>
+                  <div class="col-span-2 sm:col-span-2">LBS</div>
+                  <div class="col-span-2 sm:col-span-2">Reps</div>
+                  <div class="col-span-3 sm:col-span-4 text-right">Skip / Done</div>
+                </div>
+
+                <div class="space-y-1.5">
+                  ${setRowsHTML}
+                </div>
+
+                <div class="pt-1 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onclick="addSetRow('${ex.id}')"
+                    class="px-3 py-1.5 rounded-xl bg-slatecard hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 transition-all cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <span>+ Add Set</span>
+                  </button>
+                  <span class="text-[11px] font-mono text-slate-500">
+                    ${activeSetsList.filter((s) => s.completed).length}/${activeSetsList.length} active sets checked
+                  </span>
+                </div>
               </div>
 
-              <!-- Weight & Notes Logging Inputs -->
-              <div class="mt-3.5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div>
-                  <label class="block text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
-                    Load / Weight
-                  </label>
-                  <input
-                    type="text"
-                    value="${escapeHtml(log.weight)}"
-                    oninput="updateExerciseLog('${ex.id}', 'weight', this.value)"
-                    placeholder="e.g., +25 lbs / 60 kg"
-                    class="w-full px-3 py-2 rounded-xl bg-void border border-slate-800 focus:border-cursed-500 focus:outline-none text-xs text-slate-200 placeholder-slate-600 transition-colors"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
-                    Performance Notes
-                  </label>
-                  <input
-                    type="text"
-                    value="${escapeHtml(log.notes)}"
-                    oninput="updateExerciseLog('${ex.id}', 'notes', this.value)"
-                    placeholder="Form cues, RPE, reps achieved..."
-                    class="w-full px-3 py-2 rounded-xl bg-void border border-slate-800 focus:border-cursed-500 focus:outline-none text-xs text-slate-200 placeholder-slate-600 transition-colors"
-                  />
-                </div>
+              <!-- Exercise Notes Input -->
+              <div class="mt-3.5">
+                <label class="block text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
+                  Exercise Notes
+                </label>
+                <input
+                  type="text"
+                  value="${escapeHtml(exState.notes)}"
+                  oninput="updateExerciseNotes('${ex.id}', this.value)"
+                  placeholder="Form cues, RPE, attachment notes..."
+                  class="w-full px-3 py-2 rounded-xl bg-void border border-slate-800 focus:border-cursed-500 focus:outline-none text-xs text-slate-200 placeholder-slate-600 transition-colors"
+                />
               </div>
             </article>
           `;
@@ -1466,7 +2102,6 @@
         .join('');
 
       panel.innerHTML = `
-        <!-- Day Header Card -->
         <div class="rounded-2xl bg-gradient-to-br from-slatecard via-obsidian to-obsidian border border-slate-800/90 p-5 sm:p-6 shadow-lg">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -1475,7 +2110,7 @@
                   ${activeDay.shortLabel} • ${activeDay.tag}
                 </span>
                 <span class="text-xs font-mono text-slate-400">
-                  ${activeStat.done}/${activeStat.total} sets (${activeStat.percent}%)
+                  ${activeStat.done}/${activeStat.total} active sets (${activeStat.percent}%)
                 </span>
               </div>
               <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
@@ -1491,24 +2126,22 @@
               onclick="toggleCompleteEntireDay('${activeDay.id}')"
               class="px-4 py-2.5 rounded-xl bg-slatecard hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-semibold transition-all cursor-pointer shrink-0 self-start sm:self-center"
             >
-              ${activeStat.done === activeStat.total ? 'Uncheck All Day Sets' : 'Complete Entire Day'}
+              ${activeStat.isComplete ? 'Uncheck Active Day Sets' : 'Complete Active Day'}
             </button>
           </div>
         </div>
 
-        <!-- Exercise List -->
+        ${mobilityWarmupHTML}
+
         <div class="space-y-3.5">
           ${exercisesHTML}
         </div>
       `;
     }
 
-    /**
-     * Helper to escape HTML attribute values safely
-     */
     function escapeHtml(str) {
-      if (!str) return '';
-      return str
+      if (!str && str !== 0) return '';
+      return String(str)
         .replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
@@ -1516,30 +2149,98 @@
         .replace(/>/g, '&gt;');
     }
 
-    /**
-     * Interactive Actions
-     */
     window.selectDay = function (dayId) {
       appState.activeDayId = dayId;
       saveState();
       renderApp();
     };
 
-    window.toggleSet = function (exerciseId, setIndex) {
-      const exercise = findExerciseById(exerciseId);
-      if (!exercise) return;
-      const arr = getSetArray(exercise);
-      arr[setIndex] = !arr[setIndex];
+    window.selectCalendarDate = function (isoDate) {
+      appState.selectedCalendarDate = isoDate;
       saveState();
       renderApp();
+    };
+
+    window.toggleSingleSet = function (exerciseId, setIndex) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const exState = getExerciseState(exercise);
+      if (exState.skipped || !exState.sets[setIndex] || exState.sets[setIndex].skipped) return;
+      exState.sets[setIndex].completed = !exState.sets[setIndex].completed;
+      saveState();
+      renderApp();
+    };
+
+    window.toggleSkipSet = function (exerciseId, setIndex) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const exState = getExerciseState(exercise);
+      if (exState.skipped || !exState.sets[setIndex]) return;
+      const target = !exState.sets[setIndex].skipped;
+      exState.sets[setIndex].skipped = target;
+      if (target) {
+        exState.sets[setIndex].completed = false;
+      }
+      saveState();
+      renderApp();
+      showToast(
+        target ? `Skipped Set ${setIndex + 1} on ${exercise.name}` : `Unskipped Set ${setIndex + 1}`,
+        'info'
+      );
+    };
+
+    window.addSetRow = function (exerciseId) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const exState = getExerciseState(exercise);
+      const lastSet = exState.sets[exState.sets.length - 1] || {
+        lbs: exercise.defaultLbs || '',
+        reps: exercise.defaultReps || ''
+      };
+      exState.sets.push({
+        lbs: lastSet.lbs || '',
+        reps: lastSet.reps || '',
+        completed: false,
+        skipped: false
+      });
+      saveState();
+      renderApp();
+      showToast(`Added Set ${exState.sets.length} to ${exercise.name}`, 'info');
+    };
+
+    window.updateSetField = function (exerciseId, setIndex, field, value) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const exState = getExerciseState(exercise);
+      if (!exState.sets[setIndex] || exState.sets[setIndex].skipped) return;
+      exState.sets[setIndex][field] = value;
+      saveState();
+    };
+
+    window.toggleSkipExercise = function (exerciseId) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const exState = getExerciseState(exercise);
+      exState.skipped = !exState.skipped;
+      saveState();
+      renderApp();
+      showToast(
+        exState.skipped ? `Skipped ${exercise.name}` : `Unskipped ${exercise.name}`,
+        'info'
+      );
     };
 
     window.toggleWholeExercise = function (exerciseId) {
       const exercise = findExerciseById(exerciseId);
       if (!exercise) return;
-      const arr = getSetArray(exercise);
-      const targetState = !arr.every(Boolean);
-      appState.completedSets[exerciseId] = new Array(exercise.sets).fill(targetState);
+      const exState = getExerciseState(exercise);
+      if (exState.skipped) return;
+      const activeSets = exState.sets.filter((s) => !s.skipped);
+      if (activeSets.length === 0) return;
+      const targetState = !activeSets.every((s) => s.completed);
+      activeSets.forEach((s) => {
+        s.completed = targetState;
+      });
       saveState();
       renderApp();
     };
@@ -1548,17 +2249,21 @@
       const day = WORKOUT_PLAN.find((d) => d.id === dayId);
       if (!day) return;
 
-      const allDone = day.exercises.every((ex) => getSetArray(ex).every(Boolean));
+      const activeExercises = day.exercises.filter((ex) => !getExerciseState(ex).skipped);
+      const activeSetsAll = activeExercises.flatMap((ex) =>
+        getExerciseState(ex).sets.filter((s) => !s.skipped)
+      );
+      const allDone = activeSetsAll.length > 0 && activeSetsAll.every((s) => s.completed);
       const target = !allDone;
 
-      day.exercises.forEach((ex) => {
-        appState.completedSets[ex.id] = new Array(ex.sets).fill(target);
+      activeSetsAll.forEach((s) => {
+        s.completed = target;
       });
 
       saveState();
       renderApp();
       if (target) {
-        showToast(`${day.shortLabel} marked complete!`, 'success');
+        showToast(`${day.shortLabel} active sets marked complete!`, 'success');
       }
     };
 
@@ -1567,9 +2272,10 @@
       showToast(`Rest timer started (${seconds}s) — ${exerciseName}`, 'timer');
     };
 
-    window.updateExerciseLog = function (exerciseId, field, value) {
-      const log = getExerciseLog(exerciseId);
-      log[field] = value;
+    window.updateExerciseNotes = function (exerciseId, value) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      getExerciseState(exercise).notes = value;
       saveState();
     };
 
@@ -1581,16 +2287,16 @@
       return null;
     }
 
-    /**
-     * Initialize Event Listeners on DOM Ready
-     */
     document.addEventListener('DOMContentLoaded', () => {
       initPWAFeatures();
       loadState();
       renderApp();
       updateTimerUI();
+      updateSessionClockBadge();
+      setInterval(updateSessionClockBadge, 1000);
 
-      // Install App Modal / Native Prompt Handler
+      document.getElementById('finish-workout-btn').addEventListener('click', finishCurrentWorkout);
+
       const installModal = document.getElementById('install-modal');
       document.getElementById('install-app-btn').addEventListener('click', async () => {
         if (deferredInstallPrompt) {
@@ -1615,10 +2321,8 @@
         installModal.classList.remove('flex');
       });
 
-      // Screen Wake Lock Button
       document.getElementById('wake-lock-btn').addEventListener('click', toggleWakeLock);
 
-      // Backup & Restore Settings Modal
       const settingsModal = document.getElementById('settings-modal');
       document.getElementById('open-settings-btn').addEventListener('click', () => {
         settingsModal.classList.remove('hidden');
@@ -1636,7 +2340,6 @@
         e.target.value = '';
       });
 
-      // Timer controls
       document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
       document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
 
@@ -1648,7 +2351,6 @@
         });
       });
 
-      // Reset Week Modal Controls
       const modal = document.getElementById('confirm-modal');
       document.getElementById('reset-week-btn').addEventListener('click', () => {
         modal.classList.remove('hidden');
@@ -1661,15 +2363,25 @@
       });
 
       document.getElementById('confirm-reset-btn').addEventListener('click', () => {
-        appState.completedSets = {};
+        WORKOUT_PLAN.forEach((day) => {
+          day.exercises.forEach((ex) => {
+            const exState = getExerciseState(ex);
+            exState.skipped = false;
+            exState.sets.forEach((s) => {
+              s.completed = false;
+              s.skipped = false;
+            });
+          });
+        });
+        appState.sessionStartTime = Date.now();
         saveState();
         renderApp();
+        updateSessionClockBadge();
         modal.classList.add('hidden');
         modal.classList.remove('flex');
         showToast('Weekly checklist reset for a fresh cycle.', 'info');
       });
 
-      // Equipment Guide Accordion Toggle
       const guideToggleBtn = document.getElementById('equipment-guide-toggle');
       const guideContent = document.getElementById('equipment-guide-content');
       const guideChevron = document.getElementById('equipment-guide-chevron');
