@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Toji Workout" />
+  <title>Sorcerer Killer — Toji Fushiguro Workout PWA</title>
+  <link id="dynamic-manifest" rel="manifest" />
+  <link id="apple-touch-icon-link" rel="apple-touch-icon" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            void: '#090a0f',
+            obsidian: '#11131c',
+            slatecard: '#171a26',
+            crimson: {
+              500: '#ef4444',
+              600: '#dc2626',
+              900: '#450a0a',
+            },
+            cursed: {
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+            },
+            blade: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Custom subtle scrollbar & animations */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090a0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #272b3d;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #dc2626;
+    }
+    .glow-crimson {
+      box-shadow: 0 0 25px -5px rgba(220, 38, 38, 0.25);
+    }
+    .glow-violet {
+      box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.25);
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(239, 68, 68, 0.8); }
+      50% { border-color: rgba(139, 92, 246, 0.8); }
+    }
+    .timer-active-ring {
+      animation: pulse-border 2s infinite;
+    }
+    /* Safe-area support for notched iOS/Android devices */
+    .safe-top {
+      padding-top: max(1rem, env(safe-area-inset-top));
+    }
+    .safe-bottom {
+      padding-bottom: max(5rem, calc(4.5rem + env(safe-area-inset-bottom)));
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="bg-void text-slate-100 font-sans antialiased min-h-screen selection:bg-crimson-600 selection:text-white safe-bottom">
+
+  <!-- Top Navigation & Weekly Progress Header -->
+  <header class="sticky top-0 z-30 bg-void/90 backdrop-blur-md border-b border-slate-800/80 safe-top">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Brand / Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-crimson-600 via-crimson-900 to-cursed-600 flex items-center justify-center border border-crimson-500/40 shadow-lg shrink-0">
+            <!-- Inverted Spear / Blade Icon -->
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-crimson-500/15 text-crimson-400 border border-crimson-500/30">
+                Heavenly Restriction
+              </span>
+              <span id="pwa-status-badge" class="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="pwa-status-text">Offline Ready</span>
+              </span>
+            </div>
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white mt-0.5">
+              SORCERER KILLER <span class="text-slate-400 font-medium text-sm sm:text-base">/ Toji Workout App</span>
+            </h1>
+          </div>
+        </div>
+
+        <!-- App Controls: Install, Wake Lock, Data Settings & Reset Week -->
+        <div class="flex flex-wrap items-center justify-between md:justify-end gap-2">
+          <div class="text-left md:text-right mr-1">
+            <div class="text-[11px] text-slate-400 font-medium">Weekly Progress</div>
+            <div class="flex items-center gap-1.5">
+              <span id="weekly-percent-text" class="text-sm sm:text-base font-mono font-bold text-white">0%</span>
+              <span id="weekly-sets-text" class="text-[11px] font-mono text-slate-400">(0/0 sets)</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5">
+            <!-- Install App Button -->
+            <button
+              id="install-app-btn"
+              type="button"
+              class="px-3 py-2 rounded-xl bg-gradient-to-r from-crimson-600 to-cursed-600 hover:from-crimson-500 hover:to-cursed-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Install to Home Screen"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Install App</span>
+            </button>
+
+            <!-- Screen Wake Lock Toggle -->
+            <button
+              id="wake-lock-btn"
+              type="button"
+              aria-pressed="false"
+              class="px-2.5 py-2 rounded-xl bg-slatecard hover:bg-slate-800 text-slate-300 border border-slate-700/80 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Keep phone screen awake during workouts"
+            >
+              <svg id="wake-lock-icon" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span id="wake-lock-label" class="hidden sm:inline">Screen Awake: Off</span>
+            </button>
+
+            <!-- Backup & Restore Settings Button -->
+            <button
+              id="open-settings-btn"
+              type="button"
+              class="p-2 rounded-xl bg-slatecard hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 transition-all cursor-pointer"
+              title="Backup & Restore Workout Data"
+              aria-label="Backup & Restore Workout Data"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+
+            <!-- Reset Week Button -->
+            <button
+              id="reset-week-btn"
+              type="button"
+              class="px-3 py-2 rounded-xl bg-slatecard hover:bg-crimson-950/60 text-slate-300 hover:text-crimson-300 border border-slate-700/80 hover:border-crimson-500/50 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Clear all checkboxes for a new week"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span class="hidden sm:inline">Reset Week</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overall Weekly Progress Bar -->
+      <div class="mt-3 w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800/90 p-0.5">
+        <div
+          id="weekly-progress-bar"
+          class="h-full rounded-full bg-gradient-to-r from-crimson-600 via-cursed-500 to-blade-400 transition-all duration-500 ease-out"
+          style="width: 0%"
+        ></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+
+    <!-- Built-in Rest Countdown Timer Card -->
+    <section id="timer-card" class="rounded-2xl bg-obsidian border border-slate-800/90 p-4 sm:p-5 shadow-xl transition-all">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- Timer Display -->
+        <div class="flex items-center justify-between sm:justify-start gap-4">
+          <div class="flex items-center gap-3">
+            <div id="timer-icon-box" class="w-11 h-11 rounded-xl bg-slatecard border border-slate-700/80 flex items-center justify-center text-blade-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Rest Timer</span>
+                <span id="timer-status-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Ready</span>
+              </div>
+              <div id="timer-display" class="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-white mt-0.5">
+                01:30
+              </div>
+            </div>
+          </div>
+
+          <!-- Play / Pause / Reset Controls -->
+          <div class="flex items-center gap-2 sm:ml-4">
+            <button
+              id="timer-toggle-btn"
+              type="button"
+              class="px-4 py-2.5 rounded-xl bg-crimson-600 hover:bg-crimson-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-crimson-950/50 cursor-pointer flex items-center gap-1.5"
+            >
+              <span id="timer-toggle-label">Start</span>
+            </button>
+            <button
+              id="timer-reset-btn"
+              type="button"
+              class="px-3 py-2.5 rounded-xl bg-slatecard hover:bg-slate-800 text-slate-300 border border-slate-700/80 font-semibold text-xs sm:text-sm transition-all cursor-pointer"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Preset Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800/80">
+          <span class="text-[11px] font-mono uppercase text-slate-500 mr-1">Presets:</span>
+          <button type="button" data-preset="60" class="preset-btn px-2.5 py-1.5 rounded-lg bg-slatecard hover:bg-cursed-600/20 hover:text-cursed-300 hover:border-cursed-500/50 border border-slate-700/80 text-xs font-mono font-semibold text-slate-300 transition-all cursor-pointer">60s</button>
+          <button type="button" data-preset="75" class="preset-btn px-2.5 py-1.5 rounded-lg bg-slatecard hover:bg-cursed-600/20 hover:text-cursed-300 hover:border-cursed-500/50 border border-slate-700/80 text-xs font-mono font-semibold text-slate-300 transition-all cursor-pointer">75s</button>
+          <button type="button" data-preset="90" class="preset-btn px-2.5 py-1.5 rounded-lg bg-slatecard hover:bg-cursed-600/20 hover:text-cursed-300 hover:border-cursed-500/50 border border-slate-700/80 text-xs font-mono font-semibold text-slate-300 transition-all cursor-pointer">90s</button>
+          <button type="button" data-preset="120" class="preset-btn px-2.5 py-1.5 rounded-lg bg-slatecard hover:bg-cursed-600/20 hover:text-cursed-300 hover:border-cursed-500/50 border border-slate-700/80 text-xs font-mono font-semibold text-slate-300 transition-all cursor-pointer">120s</button>
+          <button type="button" data-preset="180" class="preset-btn px-2.5 py-1.5 rounded-lg bg-slatecard hover:bg-cursed-600/20 hover:text-cursed-300 hover:border-cursed-500/50 border border-slate-700/80 text-xs font-mono font-semibold text-slate-300 transition-all cursor-pointer">180s</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collapsible Equipment & Leg Station Guide -->
+    <section class="rounded-2xl bg-obsidian border border-slate-800/90 overflow-hidden shadow-lg">
+      <button
+        id="equipment-guide-toggle"
+        type="button"
+        aria-expanded="false"
+        class="w-full px-4 sm:px-5 py-3.5 flex items-center justify-between text-left hover:bg-slatecard/50 transition-colors cursor-pointer"
+      >
+        <div class="flex items-center gap-2.5">
+          <span class="px-2 py-0.5 rounded bg-blade-500/15 text-blade-400 border border-blade-500/30 text-[10px] font-mono font-bold uppercase tracking-wider">
+            Equipment Guide
+          </span>
+          <span class="text-xs sm:text-sm font-semibold text-slate-200">
+            How Your Multi-Gym &amp; Leg Station Fit Into This Plan
+          </span>
+        </div>
+        <svg id="equipment-guide-chevron" class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <div id="equipment-guide-content" class="hidden px-4 sm:px-5 pb-4 pt-1 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
+        <div class="p-3 rounded-xl bg-slatecard/60 border border-slate-800 space-y-1.5">
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-blade-400"></span>
+            Leg Developer Attachment (2-in-1 Station)
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            <strong class="text-slate-200">Sitting Upright (Kicking Shins Forward/Up):</strong> That’s <span class="text-blade-400 font-semibold">Seated Leg Extensions</span> — isolates the front of your thighs (quads).
+          </p>
+          <p class="text-slate-400 leading-relaxed">
+            <strong class="text-slate-200">Lying Face Down (Curling Heels to Glutes):</strong> That’s <span class="text-blade-400 font-semibold">Lying Leg Curls</span> — isolates the back of your thighs (hamstrings).
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slatecard/60 border border-slate-800 space-y-1.5">
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-crimson-500"></span>
+            Upper Multi-Gym &amp; Dumbbells
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            <strong class="text-slate-200">High Pulley + Press Arm:</strong> Wide-grip &amp; underhand <span class="text-crimson-400 font-semibold">Lat Pulldowns</span> build Toji’s V-taper width, while the <span class="text-crimson-400 font-semibold">Seated Shoulder &amp; Chest Press</span> stations safely overload pressing strength without needing a barbell rack.
+          </p>
+          <p class="text-slate-400 leading-relaxed">
+            <strong class="text-slate-200">Dumbbells &amp; Floor Space:</strong> Used for unilateral rows, lateral raises, goblet squats, RDLs, arm supersets, and explosive conditioning.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Day Selector Navigation Tabs -->
+    <nav aria-label="Workout Days" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+      <!-- Populated dynamically via JS -->
+      <div id="day-tabs-container" class="contents"></div>
+    </nav>
+
+    <!-- Active Day Workout Container -->
+    <section id="workout-panel" class="space-y-4">
+      <!-- Day Header Banner & Exercises rendered via JS -->
+    </section>
+
+  </main>
+
+  <!-- Custom Non-Blocking Toast / Confirmation Modal -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="bg-obsidian border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-crimson-500/15 border border-crimson-500/40 flex items-center justify-center text-crimson-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white">Reset Weekly Progress?</h3>
+          <p class="text-xs text-slate-400">This clears all checked sets for the week. Your logged weights & notes will be kept.</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="cancel-reset-btn" type="button" class="px-4 py-2 rounded-xl bg-slatecard hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 cursor-pointer">
+          Cancel
+        </button>
+        <button id="confirm-reset-btn" type="button" class="px-4 py-2 rounded-xl bg-crimson-600 hover:bg-crimson-500 text-white text-xs font-semibold cursor-pointer">
+          Reset Checkboxes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install App Instructions Modal (iOS Safari / Desktop / Local File Guide) -->
+  <div id="install-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="bg-obsidian border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-crimson-600 via-crimson-900 to-cursed-600 flex items-center justify-center border border-crimson-500/40 shrink-0">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">Install Sorcerer Killer App</h3>
+            <p class="text-xs text-slate-400">Run full-screen from your Home Screen like a native app</p>
+          </div>
+        </div>
+        <button id="close-install-modal-btn" type="button" class="text-slate-400 hover:text-white p-1 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300">
+        <!-- iOS Safari Steps -->
+        <div class="p-3.5 rounded-xl bg-slatecard/80 border border-slate-800 space-y-2">
+          <div class="font-bold text-white flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-blade-500/15 text-blade-400 font-mono text-[10px]">iOS / iPadOS</span>
+            <span>Safari Instructions</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-1.5 text-slate-300 leading-relaxed">
+            <li>If viewing a downloaded file, open it in <strong>Safari</strong>.</li>
+            <li>Tap the <strong>Share</strong> button (<span class="font-mono text-blade-400">⍐</span>) at the bottom of the screen.</li>
+            <li>Scroll down and tap <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Android Chrome Steps -->
+        <div class="p-3.5 rounded-xl bg-slatecard/80 border border-slate-800 space-y-2">
+          <div class="font-bold text-white flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[10px]">Android / Desktop</span>
+            <span>Chrome &amp; Edge</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            When hosted over HTTPS, tapping <strong>Install App</strong> triggers the instant install prompt. If opened from local storage, tap the browser menu (<strong>⋮</strong>) and choose <strong>Add to Home screen</strong> or <strong>Create shortcut</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-1">
+        <button id="done-install-modal-btn" type="button" class="px-4 py-2 rounded-xl bg-crimson-600 hover:bg-crimson-500 text-white text-xs font-bold cursor-pointer">
+          Got It
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Backup & Restore Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="bg-obsidian border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 class="text-base font-extrabold text-white">App Data &amp; Backup</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Export or import your logged weights, notes, and progress as JSON.</p>
+        </div>
+        <button id="close-settings-modal-btn" type="button" class="text-slate-400 hover:text-white p-1 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <button
+          id="export-json-btn"
+          type="button"
+          class="p-3.5 rounded-xl bg-slatecard hover:bg-slate-800 border border-slate-700 hover:border-blade-400/60 text-left transition-all cursor-pointer space-y-1"
+        >
+          <div class="text-xs font-bold text-blade-400 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export Backup (.json)
+          </div>
+          <p class="text-[11px] text-slate-400">Save your workout logs to transfer between phone &amp; PC.</p>
+        </button>
+
+        <label
+          for="import-json-input"
+          class="p-3.5 rounded-xl bg-slatecard hover:bg-slate-800 border border-slate-700 hover:border-cursed-400/60 text-left transition-all cursor-pointer space-y-1 block"
+        >
+          <div class="text-xs font-bold text-cursed-400 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Import Backup (.json)
+          </div>
+          <p class="text-[11px] text-slate-400">Restore previously exported weights and checkmarks.</p>
+          <input id="import-json-input" type="file" accept=".json,application/json" class="hidden" />
+        </label>
+      </div>
+
+      <div class="p-3 rounded-xl bg-void border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+        <span>Storage Key: <code class="text-slate-300 font-mono">toji_workout_hybrid_v3</code></span>
+        <span id="app-mode-indicator" class="font-mono text-emerald-400">Browser Mode</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * PWA Initialization:
+     * 1. Generates crisp PNG Apple Touch Icon via HTML5 Canvas
+     * 2. Injects dynamic Web App Manifest via Blob URL
+     * 3. Registers inline Service Worker via Blob URL for offline caching
+     */
+    let deferredInstallPrompt = null;
+    let wakeLockSentinel = null;
+
+    function initPWAFeatures() {
+      // 1. Generate 512x512 PNG App Icon on Canvas (required for crisp iOS Home Screen icon & Manifest)
+      let pngIconDataUrl = '';
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+
+        // Dark void background
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Radial crimson/violet aura
+        const grad = ctx.createLinearGradient(0, 0, 512, 512);
+        grad.addColorStop(0, '#dc2626');
+        grad.addColorStop(0.55, '#450a0a');
+        grad.addColorStop(1, '#7c3aed');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.roundRect(36, 36, 440, 440, 96);
+        ctx.fill();
+
+        // Inner dark shield
+        ctx.fillStyle = '#0d0f17';
+        ctx.beginPath();
+        ctx.roundRect(56, 56, 400, 400, 80);
+        ctx.fill();
+
+        // Lightning / Inverted Spear emblem
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 24;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(276, 110);
+        ctx.lineTo(156, 276);
+        ctx.lineTo(256, 276);
+        ctx.lineTo(236, 402);
+        ctx.lineTo(356, 236);
+        ctx.lineTo(256, 236);
+        ctx.closePath();
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+        ctx.stroke();
+
+        pngIconDataUrl = canvas.toDataURL('image/png');
+        const appleIconLink = document.getElementById('apple-touch-icon-link');
+        if (appleIconLink && pngIconDataUrl) {
+          appleIconLink.href = pngIconDataUrl;
+        }
+      } catch (e) {
+        console.warn('Canvas icon generation skipped:', e);
+      }
+
+      // 2. Dynamic Web App Manifest via Blob URL
+      try {
+        const svgIcon = encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#09090b"/><path d="M276 110L156 276h100l-20 126 120-166H256z" fill="#ef4444"/></svg>`
+        );
+        const icons = [
+          {
+            src: `data:image/svg+xml;utf8,${svgIcon}`,
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          }
+        ];
+        if (pngIconDataUrl) {
+          icons.push({
+            src: pngIconDataUrl,
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          });
+        }
+
+        const manifestObj = {
+          name: 'Sorcerer Killer Workout',
+          short_name: 'Toji Workout',
+          description: 'Toji Fushiguro Hybrid Calisthenics, Dumbbell & Machine Workout Tracker',
+          start_url: window.location.href.split('#')[0],
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#09090b',
+          theme_color: '#09090b',
+          icons
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById('dynamic-manifest');
+        if (manifestLink) {
+          manifestLink.href = manifestUrl;
+        }
+      } catch (e) {
+        console.warn('Manifest injection skipped:', e);
+      }
+
+      // 3. Inline Service Worker Registration (works on HTTPS / localhost)
+      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+        try {
+          const swCode = `
+            const CACHE_NAME = 'sorcerer-killer-pwa-v1';
+            self.addEventListener('install', (event) => {
+              self.skipWaiting();
+            });
+            self.addEventListener('activate', (event) => {
+              event.waitUntil(self.clients.claim());
+            });
+            self.addEventListener('fetch', (event) => {
+              if (event.request.method !== 'GET') return;
+              event.respondWith(
+                caches.open(CACHE_NAME).then(async (cache) => {
+                  try {
+                    const fresh = await fetch(event.request);
+                    cache.put(event.request, fresh.clone());
+                    return fresh;
+                  } catch (err) {
+                    const cached = await cache.match(event.request);
+                    return cached || Response.error();
+                  }
+                })
+              );
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {
+            // Blob SW may be restricted on some origins; localStorage offline mode still works
+          });
+        } catch (e) {
+          // Graceful fallback
+        }
+      }
+
+      // 4. Detect Standalone Installed Mode vs Browser Mode
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+
+      const statusText = document.getElementById('pwa-status-text');
+      const modeIndicator = document.getElementById('app-mode-indicator');
+      const installBtn = document.getElementById('install-app-btn');
+
+      if (isStandalone) {
+        if (statusText) statusText.textContent = 'App Mode';
+        if (modeIndicator) modeIndicator.textContent = 'Installed App';
+        if (installBtn) installBtn.classList.add('hidden');
+      }
+
+      // Capture Android/Desktop Chrome beforeinstallprompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (installBtn) {
+          installBtn.classList.remove('hidden');
+        }
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        if (statusText) statusText.textContent = 'App Installed';
+        if (installBtn) installBtn.classList.add('hidden');
+        showToast('Sorcerer Killer installed to your Home Screen!', 'success');
+      });
+    }
+
+    /**
+     * Screen Wake Lock API (keeps screen on during workout & rest timer)
+     */
+    async function toggleWakeLock() {
+      const btn = document.getElementById('wake-lock-btn');
+      const label = document.getElementById('wake-lock-label');
+      const icon = document.getElementById('wake-lock-icon');
+
+      if (!('wakeLock' in navigator)) {
+        showToast('Screen Wake Lock is not supported in this browser.', 'info');
+        return;
+      }
+
+      try {
+        if (wakeLockSentinel) {
+          await wakeLockSentinel.release();
+          wakeLockSentinel = null;
+          btn.setAttribute('aria-pressed', 'false');
+          btn.classList.remove('border-amber-500/60', 'bg-amber-500/15', 'text-amber-300');
+          icon.classList.remove('text-amber-400');
+          if (label) label.textContent = 'Screen Awake: Off';
+          showToast('Screen Awake disabled.', 'info');
+        } else {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('border-amber-500/60', 'bg-amber-500/15', 'text-amber-300');
+          icon.classList.add('text-amber-400');
+          if (label) label.textContent = 'Screen Awake: On';
+          showToast('Screen will stay awake during your workout!', 'success');
+
+          wakeLockSentinel.addEventListener('release', () => {
+            wakeLockSentinel = null;
+            btn.setAttribute('aria-pressed', 'false');
+            btn.classList.remove('border-amber-500/60', 'bg-amber-500/15', 'text-amber-300');
+            icon.classList.remove('text-amber-400');
+            if (label) label.textContent = 'Screen Awake: Off';
+          });
+        }
+      } catch (err) {
+        showToast('Could not activate Screen Awake (check battery saver).', 'info');
+      }
+    }
+
+    /**
+     * Export & Import JSON Workout Data
+     */
+    function exportWorkoutJSON() {
+      try {
+        const payload = {
+          app: 'Sorcerer Killer Workout PWA',
+          version: 'toji_workout_hybrid_v3',
+          exportedAt: new Date().toISOString(),
+          data: appState
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `toji-workout-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Workout backup exported!', 'success');
+      } catch (err) {
+        showToast('Failed to export backup file.', 'info');
+      }
+    }
+
+    function importWorkoutJSON(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          const importedState = parsed.data ? parsed.data : parsed;
+          if (!importedState || typeof importedState !== 'object') {
+            throw new Error('Invalid format');
+          }
+          appState = {
+            activeDayId: importedState.activeDayId || 'day1',
+            completedSets: importedState.completedSets || {},
+            logs: importedState.logs || {}
+          };
+          saveState();
+          renderApp();
+          const settingsModal = document.getElementById('settings-modal');
+          settingsModal.classList.add('hidden');
+          settingsModal.classList.remove('flex');
+          showToast('Workout backup restored successfully!', 'success');
+        } catch (err) {
+          showToast('Invalid backup JSON file.', 'info');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /**
+     * Workout Data Definition
+     * Hybrid 5-Day schedule (4 Training Days + 1 Active Recovery Day)
+     * Blends Machine Overload, Dumbbell Hypertrophy, and Bodyweight Calisthenics
+     */
+    const WORKOUT_PLAN = [
+      {
+        id: 'day1',
+        shortLabel: 'Day 1',
+        tag: 'V-Taper Priority',
+        title: 'Upper Width & Thickness',
+        subtitle: 'Back, Shoulders & Core — Machine and dumbbell overload paired with gymnastic core compression.',
+        accent: 'crimson',
+        exercises: [
+          {
+            id: 'd1_e1',
+            name: 'Wide-Grip Lat Pulldowns',
+            modality: 'Machine',
+            sets: 4,
+            reps: '8–10 reps',
+            restLabel: '120s',
+            restSeconds: 120,
+            tip: 'Pull bar to upper chest, drive elbows down toward your hips, and control the stretch back up.'
+          },
+          {
+            id: 'd1_e2',
+            name: 'Seated Machine Overhead Press',
+            modality: 'Machine',
+            sets: 4,
+            reps: '8–10 reps',
+            restLabel: '120s',
+            restSeconds: 120,
+            tip: 'Keep back flat against pad, brace abs tight, and press straight upward without locking out aggressively.'
+          },
+          {
+            id: 'd1_e3',
+            name: 'One-Arm Dumbbell Row',
+            modality: 'Dumbbell',
+            sets: 3,
+            reps: '8–10 reps / side',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Brace free hand on bench or knee and pull dumbbell toward your hip pocket to maximize lat width.'
+          },
+          {
+            id: 'd1_e4',
+            name: 'Dumbbell Lateral Raises',
+            modality: 'Dumbbell',
+            sets: 4,
+            reps: '12–15 reps',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Lead with your elbows with a slight forward torso lean; pause briefly at shoulder height.'
+          },
+          {
+            id: 'd1_e5',
+            name: 'Hollow Body Hold + Lying Leg Raises Superset',
+            modality: 'Calisthenics',
+            sets: 3,
+            reps: '30s hold + 12 raises',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Glue lower back into the floor for the 30s hollow hold, then go straight into 12 controlled leg raises.'
+          }
+        ]
+      },
+      {
+        id: 'day2',
+        shortLabel: 'Day 2',
+        tag: 'Explosiveness',
+        title: 'Lower Body & Explosiveness',
+        subtitle: 'Plyometrics, Dumbbell Squats/RDLs, Unilateral Calisthenics & Leg Developer Superset.',
+        accent: 'blade',
+        exercises: [
+          {
+            id: 'd2_e1',
+            name: 'Explosive Squat Jumps or Broad Jumps',
+            modality: 'Calisthenics',
+            sets: 4,
+            reps: '5 reps',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Explode with maximum intent on every rep, land softly with bent knees, and reset completely between jumps.'
+          },
+          {
+            id: 'd2_e2',
+            name: 'Dumbbell Goblet Squats',
+            modality: 'Dumbbell',
+            sets: 4,
+            reps: '8–10 reps',
+            restLabel: '120s',
+            restSeconds: 120,
+            tip: 'Hold a heavy dumbbell tight to your chest, keep torso upright, and squat to full depth.'
+          },
+          {
+            id: 'd2_e3',
+            name: 'Dumbbell Romanian Deadlifts (RDLs)',
+            modality: 'Dumbbell',
+            sets: 3,
+            reps: '10–12 reps',
+            restLabel: '120s',
+            restSeconds: 120,
+            tip: 'Keep dumbbells close to thighs and push hips straight back until you feel a deep hamstring stretch.'
+          },
+          {
+            id: 'd2_e4',
+            name: 'Bulgarian Split Squats (Bodyweight or Light DB)',
+            modality: 'Calisthenics',
+            sets: 3,
+            reps: '10 reps / leg',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Elevate rear foot on a bench/couch; drop straight down to build single-leg athleticism and hip stability.'
+          },
+          {
+            id: 'd2_e5',
+            name: 'Seated Leg Extensions + Lying Leg Curls Superset',
+            modality: 'Machine',
+            sets: 3,
+            reps: '12–15 reps each',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Sit upright & kick shins forward for quads (Extensions), then flip face-down & curl heels to glutes (Curls).'
+          },
+          {
+            id: 'd2_e6',
+            name: 'Single-Leg Bodyweight Calf Raises',
+            modality: 'Calisthenics',
+            sets: 4,
+            reps: '15 reps / leg',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Use fingertips lightly on a wall/frame for balance and pause 1–2 seconds at both the stretch and peak.'
+          }
+        ]
+      },
+      {
+        id: 'day3',
+        shortLabel: 'Day 3',
+        tag: 'Recovery',
+        title: 'Rest / Active Recovery',
+        subtitle: 'Mobility flow, brisk walking, and light core decompression.',
+        accent: 'cursed',
+        exercises: [
+          {
+            id: 'd3_e1',
+            name: 'Full-Body Mobility Flow (Thoracic, Hips & Shoulders)',
+            modality: 'Calisthenics',
+            sets: 1,
+            reps: '10–15 min',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Focus on deep squat holds, thoracic rotations, scapular push-ups, and doorway pec stretches.'
+          },
+          {
+            id: 'd3_e2',
+            name: 'Brisk Walk / Low-Intensity Cardio',
+            modality: 'Calisthenics',
+            sets: 1,
+            reps: '20–30 min',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Keep pace conversational (Zone 2) to promote blood flow and speed up recovery.'
+          },
+          {
+            id: 'd3_e3',
+            name: 'Light Core Decompression & Dead Bugs',
+            modality: 'Calisthenics',
+            sets: 2,
+            reps: '45–60 sec',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Move slowly with controlled breathing; keep lower back flat against the floor.'
+          }
+        ]
+      },
+      {
+        id: 'day4',
+        shortLabel: 'Day 4',
+        tag: 'Push & Arms',
+        title: 'Push & Arms',
+        subtitle: 'Chest Press & Dumbbell Hypertrophy finished with high-tension Push-Ups, Dips & Arm Supersets.',
+        accent: 'crimson',
+        exercises: [
+          {
+            id: 'd4_e1',
+            name: 'Seated Machine Chest Press',
+            modality: 'Machine',
+            sets: 4,
+            reps: '8–10 reps',
+            restLabel: '120s',
+            restSeconds: 120,
+            tip: 'Keep shoulder blades pinched back against the pad and drive forward explosively.'
+          },
+          {
+            id: 'd4_e2',
+            name: 'Incline or Flat Dumbbell Bench Press',
+            modality: 'Dumbbell',
+            sets: 3,
+            reps: '10–12 reps',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Use an incline bench if adjustable, or flat/floor press; lower dumbbells with a 2-second eccentric.'
+          },
+          {
+            id: 'd4_e3',
+            name: 'Decline or Standard Push-Ups (Slow Eccentric)',
+            modality: 'Calisthenics',
+            sets: 3,
+            reps: 'AMRAP (1–2 RIR)',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Elevate feet for upper-chest emphasis if strong enough. Take 3 full seconds on the way down; stop 1–2 reps shy of failure.'
+          },
+          {
+            id: 'd4_e4',
+            name: 'Bench / Chair Dips (Bodyweight or DB on Lap)',
+            modality: 'Calisthenics',
+            sets: 3,
+            reps: '10–15 reps',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Keep torso close to the bench/chair edge and shoulders depressed down away from your ears to torch triceps.'
+          },
+          {
+            id: 'd4_e5',
+            name: 'Superset: Dumbbell Bicep Curls + Overhead DB Tricep Extension',
+            modality: 'Dumbbell',
+            sets: 3,
+            reps: '10–12 reps each',
+            restLabel: '75s',
+            restSeconds: 75,
+            tip: 'Perform curls right into overhead dumbbell tricep extensions before taking your 75s rest.'
+          },
+          {
+            id: 'd4_e6',
+            name: 'Dumbbell Hammer Curls',
+            modality: 'Dumbbell',
+            sets: 3,
+            reps: '12 reps',
+            restLabel: '60s',
+            restSeconds: 60,
+            tip: 'Neutral palms-facing grip targets the brachialis and builds thick forearms.'
+          }
+        ]
+      },
+      {
+        id: 'day5',
+        shortLabel: 'Day 5',
+        tag: 'Conditioning',
+        title: 'Full-Body Power & Conditioning',
+        subtitle: 'Explosive Hip Hinge, Underhand Pulldowns, Commandos + Burpees, Carries & Sprint Finishers.',
+        accent: 'cursed',
+        exercises: [
+          {
+            id: 'd5_e1',
+            name: 'Dumbbell Swings',
+            modality: 'Dumbbell',
+            sets: 4,
+            reps: '15 reps',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Interlock hands around one end of a heavy dumbbell and snap hips forward explosively.'
+          },
+          {
+            id: 'd5_e2',
+            name: 'Underhand Close-Grip Lat Pulldowns',
+            modality: 'Machine',
+            sets: 3,
+            reps: '8–10 reps',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Palms facing you at shoulder width to overload both lower lats and biceps.'
+          },
+          {
+            id: 'd5_e3',
+            name: 'Plank-to-Pushups (Commandos) + Burpees',
+            modality: 'Calisthenics',
+            sets: 3,
+            reps: '8 each',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Complete 8 alternating forearm-to-hand commandos, then immediately hit 8 crisp chest-to-floor burpees.'
+          },
+          {
+            id: 'd5_e4',
+            name: 'Heavy Dumbbell Farmer’s Carries',
+            modality: 'Dumbbell',
+            sets: 3,
+            reps: '40 yards',
+            restLabel: '90s',
+            restSeconds: 90,
+            tip: 'Hold your heaviest dumbbells at your sides, stand tall with shoulders packed down, and walk with brisk steps.'
+          },
+          {
+            id: 'd5_e5',
+            name: 'Sprint Intervals or Shadowboxing / Jump Rope Finisher',
+            modality: 'Calisthenics',
+            sets: 6,
+            reps: '20s all-out / 70s rest',
+            restLabel: '70s',
+            restSeconds: 70,
+            tip: 'Give 100% combat speed during each 20-second burst, then catch your breath for 70 seconds.'
+          }
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = 'toji_workout_hybrid_v3';
+    /**
+     * Default Application State
+     */
+    let appState = {
+      activeDayId: 'day1',
+      completedSets: {}, // { "d1_e1": [true, false, false, false] }
+      logs: {}           // { "d1_e1": { weight: "45 lbs", notes: "Felt strong" } }
+    };
+
+    /**
+     * Timer State
+     */
+    let timerState = {
+      defaultSeconds: 90,
+      remainingSeconds: 90,
+      isRunning: false,
+      intervalId: null
+    };
+
+    /**
+     * Load state safely from localStorage
+     */
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          appState = {
+            activeDayId: parsed.activeDayId || 'day1',
+            completedSets: parsed.completedSets || {},
+            logs: parsed.logs || {}
+          };
+        }
+      } catch (err) {
+        console.error('Failed to load workout state from localStorage:', err);
+      }
+    }
+
+    /**
+     * Save state safely to localStorage
+     */
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (err) {
+        console.error('Failed to save workout state:', err);
+      }
+    }
+
+    /**
+     * Ensure set boolean array exists and matches expected length
+     */
+    function getSetArray(exercise) {
+      const existing = appState.completedSets[exercise.id];
+      if (Array.isArray(existing) && existing.length === exercise.sets) {
+        return existing;
+      }
+      const arr = new Array(exercise.sets).fill(false);
+      appState.completedSets[exercise.id] = arr;
+      return arr;
+    }
+
+    /**
+     * Get weight & notes object for an exercise
+     */
+    function getExerciseLog(exerciseId) {
+      if (!appState.logs[exerciseId]) {
+        appState.logs[exerciseId] = { weight: '', notes: '' };
+      }
+      return appState.logs[exerciseId];
+    }
+
+    /**
+     * Show non-blocking toast notification
+     */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const borderClass =
+        type === 'success'
+          ? 'border-emerald-500/50 text-emerald-300'
+          : type === 'timer'
+          ? 'border-blade-400/50 text-blade-400'
+          : 'border-cursed-500/50 text-slate-200';
+
+      toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl bg-obsidian/95 backdrop-blur-md border ${borderClass} shadow-xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
+
+    /**
+     * Play subtle Web Audio API chime when timer finishes (no external audio files needed)
+     */
+    function playTimerChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.36);
+        });
+      } catch (e) {
+        // Ignore audio errors if blocked by browser autoplay policy
+      }
+    }
+
+    /**
+     * Timer Logic
+     */
+    function formatTime(totalSeconds) {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function updateTimerUI() {
+      const displayEl = document.getElementById('timer-display');
+      const toggleLabel = document.getElementById('timer-toggle-label');
+      const toggleBtn = document.getElementById('timer-toggle-btn');
+      const statusBadge = document.getElementById('timer-status-badge');
+      const timerCard = document.getElementById('timer-card');
+
+      displayEl.textContent = formatTime(timerState.remainingSeconds);
+
+      if (timerState.isRunning) {
+        toggleLabel.textContent = 'Pause';
+        toggleBtn.classList.remove('bg-crimson-600', 'hover:bg-crimson-500');
+        toggleBtn.classList.add('bg-cursed-600', 'hover:bg-cursed-500');
+        statusBadge.textContent = 'Resting...';
+        statusBadge.className = 'text-[11px] font-mono px-2 py-0.5 rounded-full bg-crimson-500/20 text-crimson-300 border border-crimson-500/40';
+        timerCard.classList.add('timer-active-ring');
+      } else {
+        toggleLabel.textContent = timerState.remainingSeconds === 0 ? 'Restart' : 'Start';
+        toggleBtn.classList.add('bg-crimson-600', 'hover:bg-crimson-500');
+        toggleBtn.classList.remove('bg-cursed-600', 'hover:bg-cursed-500');
+        timerCard.classList.remove('timer-active-ring');
+
+        if (timerState.remainingSeconds === 0) {
+          statusBadge.textContent = 'Time Up!';
+          statusBadge.className = 'text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        } else {
+          statusBadge.textContent = 'Ready';
+          statusBadge.className = 'text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400';
+        }
+      }
+    }
+
+    function stopTimer() {
+      if (timerState.intervalId) {
+        clearInterval(timerState.intervalId);
+        timerState.intervalId = null;
+      }
+      timerState.isRunning = false;
+      updateTimerUI();
+    }
+
+    function startTimer(customSeconds = null) {
+      if (customSeconds !== null) {
+        timerState.defaultSeconds = customSeconds;
+        timerState.remainingSeconds = customSeconds;
+      } else if (timerState.remainingSeconds <= 0) {
+        timerState.remainingSeconds = timerState.defaultSeconds;
+      }
+
+      if (timerState.intervalId) {
+        clearInterval(timerState.intervalId);
+      }
+
+      timerState.isRunning = true;
+      updateTimerUI();
+
+      timerState.intervalId = setInterval(() => {
+        if (timerState.remainingSeconds > 0) {
+          timerState.remainingSeconds -= 1;
+          updateTimerUI();
+        }
+        if (timerState.remainingSeconds <= 0) {
+          stopTimer();
+          playTimerChime();
+          showToast('Rest complete — attack your next set!', 'success');
+        }
+      }, 1000);
+    }
+
+    function toggleTimer() {
+      if (timerState.isRunning) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      timerState.remainingSeconds = timerState.defaultSeconds;
+      updateTimerUI();
+    }
+
+    /**
+     * Calculate Progress Metrics (Weekly & Per-Day)
+     */
+    function calculateProgress() {
+      let totalSets = 0;
+      let completedCount = 0;
+      const dayStats = {};
+
+      WORKOUT_PLAN.forEach((day) => {
+        let dayTotal = 0;
+        let dayDone = 0;
+        day.exercises.forEach((ex) => {
+          const arr = getSetArray(ex);
+          dayTotal += arr.length;
+          dayDone += arr.filter(Boolean).length;
+        });
+        totalSets += dayTotal;
+        completedCount += dayDone;
+        dayStats[day.id] = {
+          total: dayTotal,
+          done: dayDone,
+          percent: dayTotal > 0 ? Math.round((dayDone / dayTotal) * 100) : 0
+        };
+      });
+
+      const weeklyPercent = totalSets > 0 ? Math.round((completedCount / totalSets) * 100) : 0;
+      return { totalSets, completedCount, weeklyPercent, dayStats };
+    }
+
+    /**
+     * Render Header Progress, Day Tabs, and Active Workout Panel
+     */
+    function renderApp() {
+      const { totalSets, completedCount, weeklyPercent, dayStats } = calculateProgress();
+
+      // Update Top Weekly Bar
+      document.getElementById('weekly-percent-text').textContent = `${weeklyPercent}%`;
+      document.getElementById('weekly-sets-text').textContent = `(${completedCount}/${totalSets} sets)`;
+      document.getElementById('weekly-progress-bar').style.width = `${weeklyPercent}%`;
+
+      // Render Day Tabs
+      const tabsContainer = document.getElementById('day-tabs-container');
+      tabsContainer.innerHTML = WORKOUT_PLAN.map((day) => {
+        const isActive = day.id === appState.activeDayId;
+        const stat = dayStats[day.id];
+        const isDayComplete = stat.total > 0 && stat.done === stat.total;
+
+        const activeStyles = isActive
+          ? 'bg-slatecard border-crimson-500/80 text-white shadow-lg glow-crimson'
+          : 'bg-obsidian/80 hover:bg-slatecard/70 border-slate-800/90 text-slate-400 hover:text-slate-200';
+
+        return `
+          <button
+            type="button"
+            onclick="selectDay('${day.id}')"
+            class="text-left p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${activeStyles}"
+          >
+            <div class="flex items-center justify-between w-full">
+              <span class="text-xs font-mono font-bold uppercase ${isActive ? 'text-crimson-400' : 'text-slate-400'}">
+                ${day.shortLabel}
+              </span>
+              ${
+                isDayComplete
+                  ? `<span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>`
+                  : `<span class="text-[11px] font-mono text-slate-500">${stat.done}/${stat.total}</span>`
+              }
+            </div>
+            <div class="text-xs sm:text-sm font-bold truncate w-full">
+              ${day.title}
+            </div>
+            <div class="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+              <div class="h-full ${isDayComplete ? 'bg-emerald-400' : 'bg-crimson-500'} transition-all duration-300" style="width: ${stat.percent}%"></div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // Render Active Day Panel
+      const activeDay = WORKOUT_PLAN.find((d) => d.id === appState.activeDayId) || WORKOUT_PLAN[0];
+      const activeStat = dayStats[activeDay.id];
+      const panel = document.getElementById('workout-panel');
+
+      const badgeColor =
+        activeDay.accent === 'blade'
+          ? 'bg-blade-500/15 text-blade-400 border-blade-500/30'
+          : activeDay.accent === 'cursed'
+          ? 'bg-cursed-500/15 text-cursed-400 border-cursed-500/30'
+          : 'bg-crimson-500/15 text-crimson-400 border-crimson-500/30';
+
+      const exercisesHTML = activeDay.exercises
+        .map((ex, index) => {
+          const setsArr = getSetArray(ex);
+          const log = getExerciseLog(ex.id);
+          const allSetsDone = setsArr.every(Boolean);
+
+          const modalityBadgeClass =
+            ex.modality === 'Machine'
+              ? 'bg-blade-500/15 text-blade-400 border-blade-500/35'
+              : ex.modality === 'Dumbbell'
+              ? 'bg-amber-500/15 text-amber-300 border-amber-500/35'
+              : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35';
+
+          const setButtonsHTML = setsArr
+            .map((checked, setIdx) => {
+              const btnStyle = checked
+                ? 'bg-emerald-500/20 border-emerald-500/70 text-emerald-300 shadow-sm'
+                : 'bg-void/80 hover:bg-slate-800/90 border-slate-700/80 text-slate-400 hover:text-white';
+
+              return `
+                <button
+                  type="button"
+                  onclick="toggleSet('${ex.id}', ${setIdx})"
+                  class="px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${btnStyle}"
+                  aria-pressed="${checked}"
+                >
+                  <span class="w-4 h-4 rounded-md flex items-center justify-center border ${
+                    checked ? 'bg-emerald-500 border-emerald-400 text-void' : 'border-slate-600'
+                  }">
+                    ${checked ? '✓' : ''}
+                  </span>
+                  Set ${setIdx + 1}
+                </button>
+              `;
+            })
+            .join('');
+
+          return `
+            <article class="rounded-2xl bg-obsidian border ${
+              allSetsDone ? 'border-emerald-500/40 bg-obsidian/90' : 'border-slate-800/90'
+            } p-4 sm:p-5 transition-all shadow-md">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <!-- Exercise Title & Whole-Exercise Checkbox -->
+                <div class="flex items-start gap-3">
+                  <button
+                    type="button"
+                    onclick="toggleWholeExercise('${ex.id}')"
+                    title="Mark entire exercise complete"
+                    class="mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                      allSetsDone
+                        ? 'bg-emerald-500 border-emerald-400 text-void font-bold'
+                        : 'bg-slatecard border-slate-600 hover:border-crimson-400 text-transparent'
+                    }"
+                  >
+                    ✓
+                  </button>
+                  <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="text-xs font-mono text-slate-500">#${index + 1}</span>
+                      <h3 class="text-base sm:text-lg font-bold ${
+                        allSetsDone ? 'line-through text-slate-400' : 'text-white'
+                      }">
+                        ${ex.name}
+                      </h3>
+                      <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${modalityBadgeClass}">
+                        ${ex.modality}
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">${ex.tip}</p>
+                  </div>
+                </div>
+
+                <!-- Target Sets/Reps & Interactive Rest Badge -->
+                <div class="flex flex-wrap items-center gap-2 sm:justify-end shrink-0 pl-9 sm:pl-0">
+                  <span class="px-2.5 py-1 rounded-lg bg-slatecard border border-slate-700/80 text-xs font-mono font-semibold text-slate-200">
+                    ${ex.sets} × ${ex.reps}
+                  </span>
+                  <button
+                    type="button"
+                    onclick="triggerExerciseRest(${ex.restSeconds}, '${ex.name.replace(/'/g, "\\'")}')"
+                    title="Click to start ${ex.restLabel} rest timer"
+                    class="px-2.5 py-1 rounded-lg bg-blade-500/15 hover:bg-blade-500/25 border border-blade-500/40 text-xs font-mono font-semibold text-blade-400 transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Rest ${ex.restLabel}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Individual Set Checkboxes -->
+              <div class="mt-4 pt-3.5 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+                ${setButtonsHTML}
+              </div>
+
+              <!-- Weight & Notes Logging Inputs -->
+              <div class="mt-3.5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <label class="block text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
+                    Load / Weight
+                  </label>
+                  <input
+                    type="text"
+                    value="${escapeHtml(log.weight)}"
+                    oninput="updateExerciseLog('${ex.id}', 'weight', this.value)"
+                    placeholder="e.g., +25 lbs / 60 kg"
+                    class="w-full px-3 py-2 rounded-xl bg-void border border-slate-800 focus:border-cursed-500 focus:outline-none text-xs text-slate-200 placeholder-slate-600 transition-colors"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
+                    Performance Notes
+                  </label>
+                  <input
+                    type="text"
+                    value="${escapeHtml(log.notes)}"
+                    oninput="updateExerciseLog('${ex.id}', 'notes', this.value)"
+                    placeholder="Form cues, RPE, reps achieved..."
+                    class="w-full px-3 py-2 rounded-xl bg-void border border-slate-800 focus:border-cursed-500 focus:outline-none text-xs text-slate-200 placeholder-slate-600 transition-colors"
+                  />
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+
+      panel.innerHTML = `
+        <!-- Day Header Card -->
+        <div class="rounded-2xl bg-gradient-to-br from-slatecard via-obsidian to-obsidian border border-slate-800/90 p-5 sm:p-6 shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${badgeColor}">
+                  ${activeDay.shortLabel} • ${activeDay.tag}
+                </span>
+                <span class="text-xs font-mono text-slate-400">
+                  ${activeStat.done}/${activeStat.total} sets (${activeStat.percent}%)
+                </span>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+                ${activeDay.title}
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                ${activeDay.subtitle}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onclick="toggleCompleteEntireDay('${activeDay.id}')"
+              class="px-4 py-2.5 rounded-xl bg-slatecard hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-semibold transition-all cursor-pointer shrink-0 self-start sm:self-center"
+            >
+              ${activeStat.done === activeStat.total ? 'Uncheck All Day Sets' : 'Complete Entire Day'}
+            </button>
+          </div>
+        </div>
+
+        <!-- Exercise List -->
+        <div class="space-y-3.5">
+          ${exercisesHTML}
+        </div>
+      `;
+    }
+
+    /**
+     * Helper to escape HTML attribute values safely
+     */
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    /**
+     * Interactive Actions
+     */
+    window.selectDay = function (dayId) {
+      appState.activeDayId = dayId;
+      saveState();
+      renderApp();
+    };
+
+    window.toggleSet = function (exerciseId, setIndex) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const arr = getSetArray(exercise);
+      arr[setIndex] = !arr[setIndex];
+      saveState();
+      renderApp();
+    };
+
+    window.toggleWholeExercise = function (exerciseId) {
+      const exercise = findExerciseById(exerciseId);
+      if (!exercise) return;
+      const arr = getSetArray(exercise);
+      const targetState = !arr.every(Boolean);
+      appState.completedSets[exerciseId] = new Array(exercise.sets).fill(targetState);
+      saveState();
+      renderApp();
+    };
+
+    window.toggleCompleteEntireDay = function (dayId) {
+      const day = WORKOUT_PLAN.find((d) => d.id === dayId);
+      if (!day) return;
+
+      const allDone = day.exercises.every((ex) => getSetArray(ex).every(Boolean));
+      const target = !allDone;
+
+      day.exercises.forEach((ex) => {
+        appState.completedSets[ex.id] = new Array(ex.sets).fill(target);
+      });
+
+      saveState();
+      renderApp();
+      if (target) {
+        showToast(`${day.shortLabel} marked complete!`, 'success');
+      }
+    };
+
+    window.triggerExerciseRest = function (seconds, exerciseName) {
+      startTimer(seconds);
+      showToast(`Rest timer started (${seconds}s) — ${exerciseName}`, 'timer');
+    };
+
+    window.updateExerciseLog = function (exerciseId, field, value) {
+      const log = getExerciseLog(exerciseId);
+      log[field] = value;
+      saveState();
+    };
+
+    function findExerciseById(exerciseId) {
+      for (const day of WORKOUT_PLAN) {
+        const found = day.exercises.find((e) => e.id === exerciseId);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    /**
+     * Initialize Event Listeners on DOM Ready
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      initPWAFeatures();
+      loadState();
+      renderApp();
+      updateTimerUI();
+
+      // Install App Modal / Native Prompt Handler
+      const installModal = document.getElementById('install-modal');
+      document.getElementById('install-app-btn').addEventListener('click', async () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          const choice = await deferredInstallPrompt.userChoice;
+          if (choice.outcome === 'accepted') {
+            deferredInstallPrompt = null;
+          }
+        } else {
+          installModal.classList.remove('hidden');
+          installModal.classList.add('flex');
+        }
+      });
+
+      document.getElementById('close-install-modal-btn').addEventListener('click', () => {
+        installModal.classList.add('hidden');
+        installModal.classList.remove('flex');
+      });
+
+      document.getElementById('done-install-modal-btn').addEventListener('click', () => {
+        installModal.classList.add('hidden');
+        installModal.classList.remove('flex');
+      });
+
+      // Screen Wake Lock Button
+      document.getElementById('wake-lock-btn').addEventListener('click', toggleWakeLock);
+
+      // Backup & Restore Settings Modal
+      const settingsModal = document.getElementById('settings-modal');
+      document.getElementById('open-settings-btn').addEventListener('click', () => {
+        settingsModal.classList.remove('hidden');
+        settingsModal.classList.add('flex');
+      });
+
+      document.getElementById('close-settings-modal-btn').addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+      });
+
+      document.getElementById('export-json-btn').addEventListener('click', exportWorkoutJSON);
+      document.getElementById('import-json-input').addEventListener('change', (e) => {
+        importWorkoutJSON(e.target.files[0]);
+        e.target.value = '';
+      });
+
+      // Timer controls
+      document.getElementById('timer-toggle-btn').addEventListener('click', toggleTimer);
+      document.getElementById('timer-reset-btn').addEventListener('click', resetTimer);
+
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const secs = parseInt(btn.getAttribute('data-preset'), 10);
+          startTimer(secs);
+          showToast(`Rest timer set to ${secs}s`, 'timer');
+        });
+      });
+
+      // Reset Week Modal Controls
+      const modal = document.getElementById('confirm-modal');
+      document.getElementById('reset-week-btn').addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      });
+
+      document.getElementById('cancel-reset-btn').addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      document.getElementById('confirm-reset-btn').addEventListener('click', () => {
+        appState.completedSets = {};
+        saveState();
+        renderApp();
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        showToast('Weekly checklist reset for a fresh cycle.', 'info');
+      });
+
+      // Equipment Guide Accordion Toggle
+      const guideToggleBtn = document.getElementById('equipment-guide-toggle');
+      const guideContent = document.getElementById('equipment-guide-content');
+      const guideChevron = document.getElementById('equipment-guide-chevron');
+
+      if (guideToggleBtn && guideContent && guideChevron) {
+        guideToggleBtn.addEventListener('click', () => {
+          const isHidden = guideContent.classList.contains('hidden');
+          guideContent.classList.toggle('hidden');
+          guideToggleBtn.setAttribute('aria-expanded', String(isHidden));
+          guideChevron.classList.toggle('rotate-180', isHidden);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
